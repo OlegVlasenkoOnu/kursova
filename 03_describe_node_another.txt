@@ -1,0 +1,96 @@
+kubectl describe node mongo-node
+Name:               ip-100-100-41-106.eu-west-1.compute.internal
+Roles:              <none>
+Labels:             app=xenia_stg_db
+                    aws-node-termination-handler/managed=true
+                    beta.kubernetes.io/arch=amd64
+                    beta.kubernetes.io/instance-type=m6i.large
+                    beta.kubernetes.io/os=linux
+                    eks.amazonaws.com/capacityType=ON_DEMAND
+                    eks.amazonaws.com/nodegroup=awspgdev-xenia_stg_db_ondemand20240816174818601100000002
+                    eks.amazonaws.com/nodegroup-image=ami-02e2de73058d55743
+                    eks.amazonaws.com/sourceLaunchTemplateId=lt-0540e0f6323de5d45
+                    eks.amazonaws.com/sourceLaunchTemplateVersion=1
+                    failure-domain.beta.kubernetes.io/region=eu-west-1
+                    failure-domain.beta.kubernetes.io/zone=eu-west-1b
+                    k8s.io/cloud-provider-aws=43143ff6646c453b739da35142adf825
+                    kubernetes.io/arch=amd64
+                    kubernetes.io/hostname=ip-100-100-41-106.eu-west-1.compute.internal
+                    kubernetes.io/os=linux
+                    node.kubernetes.io/instance-type=m6i.large
+                    topology.ebs.csi.aws.com/zone=eu-west-1b
+                    topology.kubernetes.io/region=eu-west-1
+                    topology.kubernetes.io/zone=eu-west-1b
+Annotations:        alpha.kubernetes.io/provided-node-ip: 100.100.41.106
+                    csi.volume.kubernetes.io/nodeid: {"csi.tigera.io":"ip-100-100-41-106.eu-west-1.compute.internal","ebs.csi.aws.com":"i-05424cd68c89bfbac"}
+                    node.alpha.kubernetes.io/ttl: 0
+                    volumes.kubernetes.io/controller-managed-attach-detach: true
+CreationTimestamp:  Fri, 16 Aug 2024 17:49:30 +0000
+Taints:             dedicated=xenia_stg_db:NoSchedule
+Unschedulable:      false
+Lease:
+  HolderIdentity:  ip-100-100-41-106.eu-west-1.compute.internal
+  AcquireTime:     <unset>
+  RenewTime:       Mon, 27 Jan 2025 13:19:12 +0000
+Conditions:
+  Type             Status  LastHeartbeatTime                 LastTransitionTime                Reason                       Message
+  ----             ------  -----------------                 ------------------                ------                       -------
+  MemoryPressure   False   Mon, 27 Jan 2025 13:16:47 +0000   Sat, 17 Aug 2024 17:58:24 +0000   KubeletHasSufficientMemory   kubelet has sufficient memory available
+  DiskPressure     False   Mon, 27 Jan 2025 13:16:47 +0000   Sat, 17 Aug 2024 17:58:24 +0000   KubeletHasNoDiskPressure     kubelet has no disk pressure
+  PIDPressure      False   Mon, 27 Jan 2025 13:16:47 +0000   Sat, 17 Aug 2024 17:58:24 +0000   KubeletHasSufficientPID      kubelet has sufficient PID available
+  Ready            True    Mon, 27 Jan 2025 13:16:47 +0000   Sat, 17 Aug 2024 17:58:24 +0000   KubeletReady                 kubelet is posting ready status
+Addresses:
+  InternalIP:   100.100.41.106
+  InternalDNS:  ip-100-100-41-106.eu-west-1.compute.internal
+  Hostname:     ip-100-100-41-106.eu-west-1.compute.internal
+Capacity:
+  cpu:                2
+  ephemeral-storage:  31444972Ki
+  hugepages-1Gi:      0
+  hugepages-2Mi:      0
+  memory:             7982012Ki
+  pods:               29
+Allocatable:
+  cpu:                1930m
+  ephemeral-storage:  27905944324
+  hugepages-1Gi:      0
+  hugepages-2Mi:      0
+  memory:             7291836Ki
+  pods:               29
+System Info:
+  Machine ID:                 ec22f6aa661576c27bfa2d5b501f6d1e
+  System UUID:                ec22f6aa-6615-76c2-7bfa-2d5b501f6d1e
+  Boot ID:                    6a2e19bc-971e-4018-8f76-af9c93e12bae
+  Kernel Version:             5.10.210-201.852.amzn2.x86_64
+  OS Image:                   Amazon Linux 2
+  Operating System:           linux
+  Architecture:               amd64
+  Container Runtime Version:  containerd://1.7.11
+  Kubelet Version:            v1.29.0-eks-5e0fdde
+  Kube-Proxy Version:         v1.29.0-eks-5e0fdde
+ProviderID:                   aws:///eu-west-1b/i-05424cd68c89bfbac
+Non-terminated Pods:          (12 in total)
+  Namespace                   Name                                         CPU Requests  CPU Limits    Memory Requests  Memory Limits  Age
+  ---------                   ----                                         ------------  ----------    ---------------  -------------  ---
+  calico-system               calico-node-prf59                            0 (0%)        0 (0%)        0 (0%)           0 (0%)         163d
+  calico-system               csi-node-driver-bnw7b                        0 (0%)        0 (0%)        0 (0%)           0 (0%)         163d
+  falcon-system               falcon-sensor-qq8rj                          0 (0%)        0 (0%)        0 (0%)           0 (0%)         11d
+  kube-system                 aws-node-fv645                               25m (1%)      0 (0%)        0 (0%)           0 (0%)         163d
+  kube-system                 aws-node-termination-handler-gr6wc           0 (0%)        0 (0%)        0 (0%)           0 (0%)         163d
+  kube-system                 ebs-csi-node-lrnkk                           30m (1%)      0 (0%)        120Mi (1%)       768Mi (10%)    163d
+  kube-system                 kube-proxy-8zpf9                             100m (5%)     0 (0%)        0 (0%)           0 (0%)         163d
+  logging                     fluent-bit-889fl                             20m (1%)      2100m (108%)  128Mi (1%)       1Gi (14%)      48d
+  monitoring                  monitoring-prometheus-node-exporter-jpvm6    0 (0%)        0 (0%)        0 (0%)           0 (0%)         163d
+  tigera-compliance           compliance-benchmarker-wn9pz                 0 (0%)        0 (0%)        0 (0%)           0 (0%)         163d
+  tigera-fluentd              fluentd-node-xp94t                           0 (0%)        0 (0%)        0 (0%)           0 (0%)         163d
+  xenia-stg                   xenia-stg-mongodb-0                          1010m (52%)   4 (207%)      2688Mi (37%)     7Gi (100%)     73d
+Allocated resources:
+  (Total limits may be over 100 percent, i.e., overcommitted.)
+  Resource           Requests      Limits
+  --------           --------      ------
+  cpu                1185m (61%)   6100m (316%)
+  memory             2936Mi (41%)  8960Mi (125%)
+  ephemeral-storage  0 (0%)        0 (0%)
+  hugepages-1Gi      0 (0%)        0 (0%)
+  hugepages-2Mi      0 (0%)        0 (0%)
+Events:              <none>

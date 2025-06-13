@@ -1,0 +1,2181 @@
+kubectl describe pod config-manager -n xenia-stg
+Name:         config-manager-28961525-9ncbb
+Namespace:    xenia-stg
+Priority:     0
+Node:         ip-100-100-24-129.eu-west-1.compute.internal/100.100.24.129
+Start Time:   Fri, 24 Jan 2025 04:05:00 +0000
+Labels:       app=config-manager
+              batch.kubernetes.io/controller-uid=7404d9cd-2b21-4b78-9713-9f7ded88b73b
+              batch.kubernetes.io/job-name=config-manager-28961525
+              controller-uid=7404d9cd-2b21-4b78-9713-9f7ded88b73b
+              job-name=config-manager-28961525
+Annotations:  config_sha256sum: 9f86d
+              sidecar.istio.io/inject: false
+              vpc.amazonaws.com/pod-ips: 
+Status:       Succeeded
+IP:           100.100.18.111
+IPs:
+  IP:           100.100.18.111
+Controlled By:  Job/config-manager-28961525
+Init Containers:
+  1-git-pull:
+    Container ID:  containerd://4da12c2b8d3015871ca40e8ec35dd04d0270705cb78e479d786becebf663f609
+    Image:         775103580568.dkr.ecr.eu-west-1.amazonaws.com/jenkins/git-sync:3.6.8
+    Image ID:      775103580568.dkr.ecr.eu-west-1.amazonaws.com/jenkins/git-sync@sha256:3ddd04aa6082474233bcdd88ec4c1e43e08c41dad3db8c32a63bb4e19056a79a
+    Port:          <none>
+    Host Port:     <none>
+    Command:
+      /git-sync
+    State:          Terminated
+      Reason:       Completed
+      Exit Code:    0
+      Started:      Fri, 24 Jan 2025 04:05:02 +0000
+      Finished:     Fri, 24 Jan 2025 04:05:03 +0000
+    Ready:          True
+    Restart Count:  0
+    Environment:
+      GIT_SYNC_BRANCH:      master
+      GIT_SYNC_DEST:        src
+      GIT_SYNC_ONE_TIME:    true
+      GIT_SYNC_REPO:        http://stash.kube-system.svc/scm/xenia/shared.git
+      GIT_SYNC_ROOT:        /tmp/xenia
+      GIT_SYNC_SUBMODULES:  off
+      GIT_SYNC_USERNAME:    ta_ua_mar_jenkins
+      GIT_SYNC_PASSWORD:    <set to the key 'GIT_SYNC_PASSWORD' in secret 'config-manager'>  Optional: false
+    Mounts:
+      /tmp/xenia from shared (rw)
+  2-merge-configs:
+    Container ID:  containerd://a84319efa1b26f24b3e774626a73d78776a727ae9f1a809f72c8e40905dbda63
+    Image:         775103580568.dkr.ecr.eu-west-1.amazonaws.com/jenkins/git-sync:3.6.8
+    Image ID:      775103580568.dkr.ecr.eu-west-1.amazonaws.com/jenkins/git-sync@sha256:3ddd04aa6082474233bcdd88ec4c1e43e08c41dad3db8c32a63bb4e19056a79a
+    Port:          <none>
+    Host Port:     <none>
+    Command:
+      /bin/bash
+      -c
+      set -e
+      cd "/tmp/xenia/src/enum"
+      for f in sites.js
+      do
+        sed -i 's|^|    |g' $f
+        sed -i '1i \genericConfig: |' $f
+        mv -- "$f" "${f%.js}.yaml"
+      done
+      ls -l
+      
+    State:          Terminated
+      Reason:       Completed
+      Exit Code:    0
+      Started:      Fri, 24 Jan 2025 04:05:04 +0000
+      Finished:     Fri, 24 Jan 2025 04:05:04 +0000
+    Ready:          True
+    Restart Count:  0
+    Environment:    <none>
+    Mounts:
+      /tmp/xenia from shared (rw)
+  3-git-push:
+    Container ID:  containerd://1029cf1f8ee709339dec69a81ad3f9a1e5792fd938b5cc5807a6a0f95ea4deba
+    Image:         775103580568.dkr.ecr.eu-west-1.amazonaws.com/jenkins/git-sync:3.6.8
+    Image ID:      775103580568.dkr.ecr.eu-west-1.amazonaws.com/jenkins/git-sync@sha256:3ddd04aa6082474233bcdd88ec4c1e43e08c41dad3db8c32a63bb4e19056a79a
+    Port:          <none>
+    Host Port:     <none>
+    Command:
+      /bin/bash
+      -c
+      set -e
+      
+      # Verify our environment variables are set
+      [ -z "${GIT_REPO}" ] && { echo "Need to set GIT_REPO"; exit 1; }
+      [ -z "${GIT_BRANCH}" ] && { echo "Need to set GIT_BRANCH"; exit 1; }
+      [ -z "${GIT_ORIGIN}" ] && { echo "Need to set GIT_ORIGIN"; exit 1; }
+      [ -z "${COMMIT_USER}" ] && { echo "Need to set COMMIT_USER"; exit 1; }
+      [ -z "${COMMIT_EMAIL}" ] && { echo "Need to set COMMIT_EMAIL"; exit 1; }
+      [ -z "${WORKING_DIR}" ] && { echo "Need to set WORKING_DIR"; exit 1; }
+      [ -z "${SSH_KEY}" ] && { echo "Need to set SSH_KEY"; exit 1; }
+      [ -z "${FILES_TO_COMMIT}" ] && { echo "Need to set FILES_TO_COMMIT"; exit 1; }
+      
+      # Change to our working directory
+      mkdir -p ${WORKING_DIR}
+      cd ${WORKING_DIR}
+      
+      # Set up our SSH Key
+      if [ ! -d "${HOME}/.ssh" ]; then
+        echo "SSH Key was not found. Configuring SSH Key in HOME dir: ${HOME}"
+        mkdir "${HOME}/.ssh"
+        echo -e "${SSH_KEY}" > "${HOME}/.ssh/id_rsa"
+        chmod 700 "${HOME}/.ssh"
+        chmod 600 "${HOME}/.ssh/id_rsa"
+      fi
+      
+      export GIT_SSH_COMMAND="ssh -i ${HOME}/.ssh/id_rsa -o 'StrictHostKeyChecking no' -o 'UserKnownHostsFile=/dev/null'"
+      
+      # Check to see if the given directory already has an initialized git repository.
+      if [ ! -d "${WORKING_DIR}/.git" ]; then
+        echo "Git repository not found. Clone repository."
+        git clone --depth 1 -b ${GIT_BRANCH} ${GIT_REPO} ${WORKING_DIR}
+      fi
+          rsync --out-format="%M %f" -a /tmp/xenia/src/enum/sites.yaml /tmp/xenia/dst/awspgdev/xenia-stg/config.xenia-stg.yaml
+      
+      # Check to see if there are changes
+      CHANGES=`git status -s | awk {'print $2'}`
+      if [ -z "${CHANGES}" ]; then
+          echo "No changes detected."
+      else
+          echo "Changes detected."
+          echo "${CHANGES}"
+      
+          # Configure our user and email to commit as.
+          git config user.name "${COMMIT_USER}"
+          git config user.email "${COMMIT_EMAIL}"
+      
+          # Check to see if we need to commit all.
+          if [[ "${FILES_TO_COMMIT}" == "." ]]; then
+            git add .
+          fi
+      
+          # Loop through our files to commit and see if we need to commit them.
+          for changed_file in ${CHANGES}; do
+            for watched_file in ${FILES_TO_COMMIT}; do
+              if [[ "${changed_file}" == "${watched_file}" ]]; then
+                git add ${changed_file}
+              fi
+            done
+          done
+      
+          git commit -m "Update detected changes (version: ${COMMIT_VERSION})"
+          git push ${GIT_ORIGIN} ${GIT_BRANCH}
+      fi
+      
+    State:          Terminated
+      Reason:       Completed
+      Exit Code:    0
+      Started:      Fri, 24 Jan 2025 04:05:05 +0000
+      Finished:     Fri, 24 Jan 2025 04:05:07 +0000
+    Ready:          True
+    Restart Count:  0
+    Environment:
+      COMMIT_EMAIL:     gdevops@playtech.com
+      COMMIT_USER:      xenia devops
+      COMMIT_VERSION:   2bf4f0a9
+      FILES_TO_COMMIT:  .
+      GIT_BRANCH:       master
+      GIT_ORIGIN:       origin
+      GIT_REPO:         git@bitbucket.org:gpasdevops/k8s-env-dev-xenia.git
+      WORKING_DIR:      /tmp/xenia/dst
+      SSH_KEY:          <set to the key 'SSH_KEY' in secret 'config-manager'>  Optional: false
+    Mounts:
+      /tmp/xenia from shared (rw)
+Containers:
+  result:
+    Container ID:  containerd://4cb884b5e73d38501fb2a509302436c1c24396da864bd1a8384874ce77c65cc5
+    Image:         775103580568.dkr.ecr.eu-west-1.amazonaws.com/jenkins/git-sync:3.6.8
+    Image ID:      775103580568.dkr.ecr.eu-west-1.amazonaws.com/jenkins/git-sync@sha256:3ddd04aa6082474233bcdd88ec4c1e43e08c41dad3db8c32a63bb4e19056a79a
+    Port:          <none>
+    Host Port:     <none>
+    Command:
+      /bin/echo
+      All job steps finished.
+    State:          Terminated
+      Reason:       Completed
+      Exit Code:    0
+      Started:      Fri, 24 Jan 2025 04:05:08 +0000
+      Finished:     Fri, 24 Jan 2025 04:05:08 +0000
+    Ready:          False
+    Restart Count:  0
+    Environment:    <none>
+    Mounts:         <none>
+Conditions:
+  Type                        Status
+  PodReadyToStartContainers   False 
+  Initialized                 True 
+  Ready                       False 
+  ContainersReady             False 
+  PodScheduled                True 
+Volumes:
+  shared:
+    Type:        EmptyDir (a temporary directory that shares a pod's lifetime)
+    Medium:      
+    SizeLimit:   <unset>
+QoS Class:       BestEffort
+Node-Selectors:  <none>
+Tolerations:     node.kubernetes.io/not-ready:NoExecute op=Exists for 300s
+                 node.kubernetes.io/unreachable:NoExecute op=Exists for 300s
+Events:          <none>
+
+
+Name:         config-manager-28965845-dkmjz
+Namespace:    xenia-stg
+Priority:     0
+Node:         ip-100-100-24-129.eu-west-1.compute.internal/100.100.24.129
+Start Time:   Mon, 27 Jan 2025 04:05:00 +0000
+Labels:       app=config-manager
+              batch.kubernetes.io/controller-uid=3e5033ec-3e98-4be9-adeb-d0716c1e9fb9
+              batch.kubernetes.io/job-name=config-manager-28965845
+              controller-uid=3e5033ec-3e98-4be9-adeb-d0716c1e9fb9
+              job-name=config-manager-28965845
+Annotations:  config_sha256sum: 9f86d
+              sidecar.istio.io/inject: false
+              vpc.amazonaws.com/pod-ips: 
+Status:       Succeeded
+IP:           100.100.31.170
+IPs:
+  IP:           100.100.31.170
+Controlled By:  Job/config-manager-28965845
+Init Containers:
+  1-git-pull:
+    Container ID:  containerd://bf9602a48224afd1bd5ae416abeda88ec942946c32e6384a792933149d04da82
+    Image:         775103580568.dkr.ecr.eu-west-1.amazonaws.com/jenkins/git-sync:3.6.8
+    Image ID:      775103580568.dkr.ecr.eu-west-1.amazonaws.com/jenkins/git-sync@sha256:3ddd04aa6082474233bcdd88ec4c1e43e08c41dad3db8c32a63bb4e19056a79a
+    Port:          <none>
+    Host Port:     <none>
+    Command:
+      /git-sync
+    State:          Terminated
+      Reason:       Completed
+      Exit Code:    0
+      Started:      Mon, 27 Jan 2025 04:05:01 +0000
+      Finished:     Mon, 27 Jan 2025 04:05:03 +0000
+    Ready:          True
+    Restart Count:  0
+    Environment:
+      GIT_SYNC_BRANCH:      master
+      GIT_SYNC_DEST:        src
+      GIT_SYNC_ONE_TIME:    true
+      GIT_SYNC_REPO:        http://stash.kube-system.svc/scm/xenia/shared.git
+      GIT_SYNC_ROOT:        /tmp/xenia
+      GIT_SYNC_SUBMODULES:  off
+      GIT_SYNC_USERNAME:    ta_ua_mar_jenkins
+      GIT_SYNC_PASSWORD:    <set to the key 'GIT_SYNC_PASSWORD' in secret 'config-manager'>  Optional: false
+    Mounts:
+      /tmp/xenia from shared (rw)
+  2-merge-configs:
+    Container ID:  containerd://45b56cd81b3da3ab777f83f224484d340b5c048de02446b5025d8f0b2e597705
+    Image:         775103580568.dkr.ecr.eu-west-1.amazonaws.com/jenkins/git-sync:3.6.8
+    Image ID:      775103580568.dkr.ecr.eu-west-1.amazonaws.com/jenkins/git-sync@sha256:3ddd04aa6082474233bcdd88ec4c1e43e08c41dad3db8c32a63bb4e19056a79a
+    Port:          <none>
+    Host Port:     <none>
+    Command:
+      /bin/bash
+      -c
+      set -e
+      cd "/tmp/xenia/src/enum"
+      for f in sites.js
+      do
+        sed -i 's|^|    |g' $f
+        sed -i '1i \genericConfig: |' $f
+        mv -- "$f" "${f%.js}.yaml"
+      done
+      ls -l
+      
+    State:          Terminated
+      Reason:       Completed
+      Exit Code:    0
+      Started:      Mon, 27 Jan 2025 04:05:04 +0000
+      Finished:     Mon, 27 Jan 2025 04:05:04 +0000
+    Ready:          True
+    Restart Count:  0
+    Environment:    <none>
+    Mounts:
+      /tmp/xenia from shared (rw)
+  3-git-push:
+    Container ID:  containerd://ab49a882e06c53bbfac66b88e83644aad05c9f82b9d153ebe2960fb8d9e20be3
+    Image:         775103580568.dkr.ecr.eu-west-1.amazonaws.com/jenkins/git-sync:3.6.8
+    Image ID:      775103580568.dkr.ecr.eu-west-1.amazonaws.com/jenkins/git-sync@sha256:3ddd04aa6082474233bcdd88ec4c1e43e08c41dad3db8c32a63bb4e19056a79a
+    Port:          <none>
+    Host Port:     <none>
+    Command:
+      /bin/bash
+      -c
+      set -e
+      
+      # Verify our environment variables are set
+      [ -z "${GIT_REPO}" ] && { echo "Need to set GIT_REPO"; exit 1; }
+      [ -z "${GIT_BRANCH}" ] && { echo "Need to set GIT_BRANCH"; exit 1; }
+      [ -z "${GIT_ORIGIN}" ] && { echo "Need to set GIT_ORIGIN"; exit 1; }
+      [ -z "${COMMIT_USER}" ] && { echo "Need to set COMMIT_USER"; exit 1; }
+      [ -z "${COMMIT_EMAIL}" ] && { echo "Need to set COMMIT_EMAIL"; exit 1; }
+      [ -z "${WORKING_DIR}" ] && { echo "Need to set WORKING_DIR"; exit 1; }
+      [ -z "${SSH_KEY}" ] && { echo "Need to set SSH_KEY"; exit 1; }
+      [ -z "${FILES_TO_COMMIT}" ] && { echo "Need to set FILES_TO_COMMIT"; exit 1; }
+      
+      # Change to our working directory
+      mkdir -p ${WORKING_DIR}
+      cd ${WORKING_DIR}
+      
+      # Set up our SSH Key
+      if [ ! -d "${HOME}/.ssh" ]; then
+        echo "SSH Key was not found. Configuring SSH Key in HOME dir: ${HOME}"
+        mkdir "${HOME}/.ssh"
+        echo -e "${SSH_KEY}" > "${HOME}/.ssh/id_rsa"
+        chmod 700 "${HOME}/.ssh"
+        chmod 600 "${HOME}/.ssh/id_rsa"
+      fi
+      
+      export GIT_SSH_COMMAND="ssh -i ${HOME}/.ssh/id_rsa -o 'StrictHostKeyChecking no' -o 'UserKnownHostsFile=/dev/null'"
+      
+      # Check to see if the given directory already has an initialized git repository.
+      if [ ! -d "${WORKING_DIR}/.git" ]; then
+        echo "Git repository not found. Clone repository."
+        git clone --depth 1 -b ${GIT_BRANCH} ${GIT_REPO} ${WORKING_DIR}
+      fi
+          rsync --out-format="%M %f" -a /tmp/xenia/src/enum/sites.yaml /tmp/xenia/dst/awspgdev/xenia-stg/config.xenia-stg.yaml
+      
+      # Check to see if there are changes
+      CHANGES=`git status -s | awk {'print $2'}`
+      if [ -z "${CHANGES}" ]; then
+          echo "No changes detected."
+      else
+          echo "Changes detected."
+          echo "${CHANGES}"
+      
+          # Configure our user and email to commit as.
+          git config user.name "${COMMIT_USER}"
+          git config user.email "${COMMIT_EMAIL}"
+      
+          # Check to see if we need to commit all.
+          if [[ "${FILES_TO_COMMIT}" == "." ]]; then
+            git add .
+          fi
+      
+          # Loop through our files to commit and see if we need to commit them.
+          for changed_file in ${CHANGES}; do
+            for watched_file in ${FILES_TO_COMMIT}; do
+              if [[ "${changed_file}" == "${watched_file}" ]]; then
+                git add ${changed_file}
+              fi
+            done
+          done
+      
+          git commit -m "Update detected changes (version: ${COMMIT_VERSION})"
+          git push ${GIT_ORIGIN} ${GIT_BRANCH}
+      fi
+      
+    State:          Terminated
+      Reason:       Completed
+      Exit Code:    0
+      Started:      Mon, 27 Jan 2025 04:05:05 +0000
+      Finished:     Mon, 27 Jan 2025 04:05:07 +0000
+    Ready:          True
+    Restart Count:  0
+    Environment:
+      COMMIT_EMAIL:     gdevops@playtech.com
+      COMMIT_USER:      xenia devops
+      COMMIT_VERSION:   2bf4f0a9
+      FILES_TO_COMMIT:  .
+      GIT_BRANCH:       master
+      GIT_ORIGIN:       origin
+      GIT_REPO:         git@bitbucket.org:gpasdevops/k8s-env-dev-xenia.git
+      WORKING_DIR:      /tmp/xenia/dst
+      SSH_KEY:          <set to the key 'SSH_KEY' in secret 'config-manager'>  Optional: false
+    Mounts:
+      /tmp/xenia from shared (rw)
+Containers:
+  result:
+    Container ID:  containerd://ac0da0bb112990ed647fc3d8a9a2303b2fffd5a3e4e5b3bcd90c8554eb362b55
+    Image:         775103580568.dkr.ecr.eu-west-1.amazonaws.com/jenkins/git-sync:3.6.8
+    Image ID:      775103580568.dkr.ecr.eu-west-1.amazonaws.com/jenkins/git-sync@sha256:3ddd04aa6082474233bcdd88ec4c1e43e08c41dad3db8c32a63bb4e19056a79a
+    Port:          <none>
+    Host Port:     <none>
+    Command:
+      /bin/echo
+      All job steps finished.
+    State:          Terminated
+      Reason:       Completed
+      Exit Code:    0
+      Started:      Mon, 27 Jan 2025 04:05:08 +0000
+      Finished:     Mon, 27 Jan 2025 04:05:08 +0000
+    Ready:          False
+    Restart Count:  0
+    Environment:    <none>
+    Mounts:         <none>
+Conditions:
+  Type                        Status
+  PodReadyToStartContainers   False 
+  Initialized                 True 
+  Ready                       False 
+  ContainersReady             False 
+  PodScheduled                True 
+Volumes:
+  shared:
+    Type:        EmptyDir (a temporary directory that shares a pod's lifetime)
+    Medium:      
+    SizeLimit:   <unset>
+QoS Class:       BestEffort
+Node-Selectors:  <none>
+Tolerations:     node.kubernetes.io/not-ready:NoExecute op=Exists for 300s
+                 node.kubernetes.io/unreachable:NoExecute op=Exists for 300s
+Events:          <none>
+
+
+Name:         config-manager-tecrp-g28p9
+Namespace:    xenia-stg
+Priority:     0
+Node:         ip-100-100-46-4.eu-west-1.compute.internal/100.100.46.4
+Start Time:   Mon, 27 Jan 2025 13:07:36 +0000
+Labels:       app=config-manager
+              batch.kubernetes.io/controller-uid=80648b9a-3341-4b09-b82c-77d765f671eb
+              batch.kubernetes.io/job-name=config-manager-tecrp
+              controller-uid=80648b9a-3341-4b09-b82c-77d765f671eb
+              job-name=config-manager-tecrp
+Annotations:  config_sha256sum: 9f86d
+              sidecar.istio.io/inject: false
+              vpc.amazonaws.com/pod-ips: 
+Status:       Succeeded
+IP:           100.100.47.38
+IPs:
+  IP:           100.100.47.38
+Controlled By:  Job/config-manager-tecrp
+Init Containers:
+  1-git-pull:
+    Container ID:  containerd://5914fe461a20e1e79f7d4f73fed9e7521e082ec8c93b68a99f38c6e6a47bd6d7
+    Image:         775103580568.dkr.ecr.eu-west-1.amazonaws.com/jenkins/git-sync:3.6.8
+    Image ID:      775103580568.dkr.ecr.eu-west-1.amazonaws.com/jenkins/git-sync@sha256:3ddd04aa6082474233bcdd88ec4c1e43e08c41dad3db8c32a63bb4e19056a79a
+    Port:          <none>
+    Host Port:     <none>
+    Command:
+      /git-sync
+    State:          Terminated
+      Reason:       Completed
+      Exit Code:    0
+      Started:      Mon, 27 Jan 2025 13:07:37 +0000
+      Finished:     Mon, 27 Jan 2025 13:07:37 +0000
+    Ready:          True
+    Restart Count:  0
+    Environment:
+      GIT_SYNC_BRANCH:      master
+      GIT_SYNC_DEST:        src
+      GIT_SYNC_ONE_TIME:    true
+      GIT_SYNC_REPO:        http://stash.kube-system.svc/scm/xenia/shared.git
+      GIT_SYNC_ROOT:        /tmp/xenia
+      GIT_SYNC_SUBMODULES:  off
+      GIT_SYNC_USERNAME:    ta_ua_mar_jenkins
+      GIT_SYNC_PASSWORD:    <set to the key 'GIT_SYNC_PASSWORD' in secret 'config-manager'>  Optional: false
+    Mounts:
+      /tmp/xenia from shared (rw)
+  2-merge-configs:
+    Container ID:  containerd://b44a3780a8f84e512b8db1dd995766790b990fb9d16f70da3b229bb602ac0fa2
+    Image:         775103580568.dkr.ecr.eu-west-1.amazonaws.com/jenkins/git-sync:3.6.8
+    Image ID:      775103580568.dkr.ecr.eu-west-1.amazonaws.com/jenkins/git-sync@sha256:3ddd04aa6082474233bcdd88ec4c1e43e08c41dad3db8c32a63bb4e19056a79a
+    Port:          <none>
+    Host Port:     <none>
+    Command:
+      /bin/bash
+      -c
+      set -e
+      cd "/tmp/xenia/src/enum"
+      for f in sites.js
+      do
+        sed -i 's|^|    |g' $f
+        sed -i '1i \genericConfig: |' $f
+        mv -- "$f" "${f%.js}.yaml"
+      done
+      ls -l
+      
+    State:          Terminated
+      Reason:       Completed
+      Exit Code:    0
+      Started:      Mon, 27 Jan 2025 13:07:38 +0000
+      Finished:     Mon, 27 Jan 2025 13:07:38 +0000
+    Ready:          True
+    Restart Count:  0
+    Environment:    <none>
+    Mounts:
+      /tmp/xenia from shared (rw)
+  3-git-push:
+    Container ID:  containerd://76938c45cb4d231f7d32820519aebf7bdeb3526d011120df18a4267135894772
+    Image:         775103580568.dkr.ecr.eu-west-1.amazonaws.com/jenkins/git-sync:3.6.8
+    Image ID:      775103580568.dkr.ecr.eu-west-1.amazonaws.com/jenkins/git-sync@sha256:3ddd04aa6082474233bcdd88ec4c1e43e08c41dad3db8c32a63bb4e19056a79a
+    Port:          <none>
+    Host Port:     <none>
+    Command:
+      /bin/bash
+      -c
+      set -e
+      
+      # Verify our environment variables are set
+      [ -z "${GIT_REPO}" ] && { echo "Need to set GIT_REPO"; exit 1; }
+      [ -z "${GIT_BRANCH}" ] && { echo "Need to set GIT_BRANCH"; exit 1; }
+      [ -z "${GIT_ORIGIN}" ] && { echo "Need to set GIT_ORIGIN"; exit 1; }
+      [ -z "${COMMIT_USER}" ] && { echo "Need to set COMMIT_USER"; exit 1; }
+      [ -z "${COMMIT_EMAIL}" ] && { echo "Need to set COMMIT_EMAIL"; exit 1; }
+      [ -z "${WORKING_DIR}" ] && { echo "Need to set WORKING_DIR"; exit 1; }
+      [ -z "${SSH_KEY}" ] && { echo "Need to set SSH_KEY"; exit 1; }
+      [ -z "${FILES_TO_COMMIT}" ] && { echo "Need to set FILES_TO_COMMIT"; exit 1; }
+      
+      # Change to our working directory
+      mkdir -p ${WORKING_DIR}
+      cd ${WORKING_DIR}
+      
+      # Set up our SSH Key
+      if [ ! -d "${HOME}/.ssh" ]; then
+        echo "SSH Key was not found. Configuring SSH Key in HOME dir: ${HOME}"
+        mkdir "${HOME}/.ssh"
+        echo -e "${SSH_KEY}" > "${HOME}/.ssh/id_rsa"
+        chmod 700 "${HOME}/.ssh"
+        chmod 600 "${HOME}/.ssh/id_rsa"
+      fi
+      
+      export GIT_SSH_COMMAND="ssh -i ${HOME}/.ssh/id_rsa -o 'StrictHostKeyChecking no' -o 'UserKnownHostsFile=/dev/null'"
+      
+      # Check to see if the given directory already has an initialized git repository.
+      if [ ! -d "${WORKING_DIR}/.git" ]; then
+        echo "Git repository not found. Clone repository."
+        git clone --depth 1 -b ${GIT_BRANCH} ${GIT_REPO} ${WORKING_DIR}
+      fi
+          rsync --out-format="%M %f" -a /tmp/xenia/src/enum/sites.yaml /tmp/xenia/dst/awspgdev/xenia-stg/config.xenia-stg.yaml
+      
+      # Check to see if there are changes
+      CHANGES=`git status -s | awk {'print $2'}`
+      if [ -z "${CHANGES}" ]; then
+          echo "No changes detected."
+      else
+          echo "Changes detected."
+          echo "${CHANGES}"
+      
+          # Configure our user and email to commit as.
+          git config user.name "${COMMIT_USER}"
+          git config user.email "${COMMIT_EMAIL}"
+      
+          # Check to see if we need to commit all.
+          if [[ "${FILES_TO_COMMIT}" == "." ]]; then
+            git add .
+          fi
+      
+          # Loop through our files to commit and see if we need to commit them.
+          for changed_file in ${CHANGES}; do
+            for watched_file in ${FILES_TO_COMMIT}; do
+              if [[ "${changed_file}" == "${watched_file}" ]]; then
+                git add ${changed_file}
+              fi
+            done
+          done
+      
+          git commit -m "Update detected changes (version: ${COMMIT_VERSION})"
+          git push ${GIT_ORIGIN} ${GIT_BRANCH}
+      fi
+      
+    State:          Terminated
+      Reason:       Completed
+      Exit Code:    0
+      Started:      Mon, 27 Jan 2025 13:07:39 +0000
+      Finished:     Mon, 27 Jan 2025 13:07:40 +0000
+    Ready:          True
+    Restart Count:  0
+    Environment:
+      COMMIT_EMAIL:     gdevops@playtech.com
+      COMMIT_USER:      xenia devops
+      COMMIT_VERSION:   2bf4f0a9
+      FILES_TO_COMMIT:  .
+      GIT_BRANCH:       master
+      GIT_ORIGIN:       origin
+      GIT_REPO:         git@bitbucket.org:gpasdevops/k8s-env-dev-xenia.git
+      WORKING_DIR:      /tmp/xenia/dst
+      SSH_KEY:          <set to the key 'SSH_KEY' in secret 'config-manager'>  Optional: false
+    Mounts:
+      /tmp/xenia from shared (rw)
+Containers:
+  result:
+    Container ID:  containerd://cdaa11a128b3f96f4471b22f699019ea0b00b36d513bdd3006039edbf87dad73
+    Image:         775103580568.dkr.ecr.eu-west-1.amazonaws.com/jenkins/git-sync:3.6.8
+    Image ID:      775103580568.dkr.ecr.eu-west-1.amazonaws.com/jenkins/git-sync@sha256:3ddd04aa6082474233bcdd88ec4c1e43e08c41dad3db8c32a63bb4e19056a79a
+    Port:          <none>
+    Host Port:     <none>
+    Command:
+      /bin/echo
+      All job steps finished.
+    State:          Terminated
+      Reason:       Completed
+      Exit Code:    0
+      Started:      Mon, 27 Jan 2025 13:07:41 +0000
+      Finished:     Mon, 27 Jan 2025 13:07:41 +0000
+    Ready:          False
+    Restart Count:  0
+    Environment:    <none>
+    Mounts:         <none>
+Conditions:
+  Type                        Status
+  PodReadyToStartContainers   False 
+  Initialized                 True 
+  Ready                       False 
+  ContainersReady             False 
+  PodScheduled                True 
+Volumes:
+  shared:
+    Type:        EmptyDir (a temporary directory that shares a pod's lifetime)
+    Medium:      
+    SizeLimit:   <unset>
+QoS Class:       BestEffort
+Node-Selectors:  app=xenia
+Tolerations:     dedicated=xenia:NoSchedule
+                 node.kubernetes.io/not-ready:NoExecute op=Exists for 300s
+                 node.kubernetes.io/unreachable:NoExecute op=Exists for 300s
+Events:
+  Type    Reason     Age   From               Message
+  ----    ------     ----  ----               -------
+  Normal  Scheduled  14m   default-scheduler  Successfully assigned xenia-stg/config-manager-tecrp-g28p9 to ip-100-100-46-4.eu-west-1.compute.internal
+  Normal  Pulled     14m   kubelet            Container image "775103580568.dkr.ecr.eu-west-1.amazonaws.com/jenkins/git-sync:3.6.8" already present on machine
+  Normal  Created    14m   kubelet            Created container 1-git-pull
+  Normal  Started    14m   kubelet            Started container 1-git-pull
+  Normal  Pulled     14m   kubelet            Container image "775103580568.dkr.ecr.eu-west-1.amazonaws.com/jenkins/git-sync:3.6.8" already present on machine
+  Normal  Created    14m   kubelet            Created container 2-merge-configs
+  Normal  Started    14m   kubelet            Started container 2-merge-configs
+  Normal  Pulled     14m   kubelet            Container image "775103580568.dkr.ecr.eu-west-1.amazonaws.com/jenkins/git-sync:3.6.8" already present on machine
+  Normal  Created    14m   kubelet            Created container 3-git-push
+  Normal  Started    14m   kubelet            Started container 3-git-push
+  Normal  Pulled     14m   kubelet            Container image "775103580568.dkr.ecr.eu-west-1.amazonaws.com/jenkins/git-sync:3.6.8" already present on machine
+  Normal  Created    14m   kubelet            Created container result
+  Normal  Started    14m   kubelet            Started container result
+
+
+Name:         mongodb-backup-28964280-9lfqk
+Namespace:    xenia-stg
+Priority:     0
+Node:         ip-100-100-24-129.eu-west-1.compute.internal/100.100.24.129
+Start Time:   Sun, 26 Jan 2025 02:00:00 +0000
+Labels:       app=mongodb-backup
+              batch.kubernetes.io/controller-uid=f4c4e186-30a0-4508-aa1a-3d06d47e925e
+              batch.kubernetes.io/job-name=mongodb-backup-28964280
+              controller-uid=f4c4e186-30a0-4508-aa1a-3d06d47e925e
+              job-name=mongodb-backup-28964280
+Annotations:  eks.amazonaws.com/role-arn: arn:aws:iam::775103580568:role/awspgdev-s3BackupRestore
+              sidecar.istio.io/inject: false
+              vpc.amazonaws.com/pod-ips: 
+Status:       Succeeded
+IP:           100.100.31.153
+IPs:
+  IP:           100.100.31.153
+Controlled By:  Job/mongodb-backup-28964280
+Containers:
+  mongo-backup:
+    Container ID:  containerd://ae00a992759d29dacd10bc4b79b0af1652a6062f563a12a82382f32a9e12a55b
+    Image:         775103580568.dkr.ecr.eu-west-1.amazonaws.com/mongo-backup:v.2.0
+    Image ID:      775103580568.dkr.ecr.eu-west-1.amazonaws.com/mongo-backup@sha256:a88096a499d2231843d8054f241e9059a5975a73d973a225907748bc8b5ac8d1
+    Port:          <none>
+    Host Port:     <none>
+    Command:
+      /bin/bash
+      -c
+      set -e
+      
+      # Verify our mandatory environment variables are set
+      [ -z "${MONGO_URI}" ] && { echo "Need to set MONGO_URI"; exit 1; }
+      [ -z "${MONGO_USER}" ] && { echo "Need to set MONGO_USER"; exit 1; }
+      [ -z "${MONGO_PASS}" ] && { echo "Need to set MONGO_PASS"; exit 1; }
+      [ -z "${AWS_DEFAULT_REGION}" ] && { echo "Need to set AWS_DEFAULT_REGION"; exit 1; }
+      [ -z "${AWS_S3_BUCKET_NAME}" ] && { echo "Need to set AWS_S3_BUCKET_NAME"; exit 1; }
+      
+      MONGO_AUTH_DB="${MONGO_AUTH_DB:-admin}"
+      MONGO_BACKUP_NAME="${MONGO_BACKUP_NAME:-dump.all}"
+      BACKUP_NAME="${MONGO_BACKUP_NAME}.$(date +%Y%m%d_%H%M%S).gzip"
+      
+      echo "/usr/bin/mongodump \
+          --uri=${MONGO_URI} \
+          --username=${MONGO_USER} \
+          --authenticationDatabase=${MONGO_AUTH_DB} \
+          ${MONGO_BACKUP_PARAMS} \
+          --gzip  \
+          --archive=./${BACKUP_NAME}"
+      
+      /usr/bin/mongodump \
+          --uri="${MONGO_URI}" \
+          --username="${MONGO_USER}" \
+          --password="${MONGO_PASS}" \
+          --authenticationDatabase="${MONGO_AUTH_DB}" \
+          ${MONGO_BACKUP_PARAMS} \
+          --gzip  \
+          --archive="./${BACKUP_NAME}"
+      
+      aws s3 cp "./${BACKUP_NAME}" "s3://${AWS_S3_BUCKET_NAME}/${BACKUP_NAME}"
+      
+    State:          Terminated
+      Reason:       Completed
+      Exit Code:    0
+      Started:      Sun, 26 Jan 2025 02:00:01 +0000
+      Finished:     Sun, 26 Jan 2025 02:04:13 +0000
+    Ready:          False
+    Restart Count:  0
+    Environment:
+      AWS_DEFAULT_REGION:           eu-west-1
+      AWS_S3_BUCKET_NAME:           xenia-stg-mongo-backup
+      MONGO_BACKUP_NAME:            xenia
+      MONGO_BACKUP_PARAMS:          --db=xenia  --numParallelCollections=1
+      MONGO_URI:                    mongodb://xenia-stg-mongodb-headless.xenia-stg.svc
+      MONGO_USER:                   root
+      MONGO_PASS:                   <set to the key 'mongodb-root-password' in secret 'mongodb'>  Optional: false
+      AWS_STS_REGIONAL_ENDPOINTS:   regional
+      AWS_ROLE_ARN:                 arn:aws:iam::775103580568:role/awspgdev-s3BackupRestore
+      AWS_WEB_IDENTITY_TOKEN_FILE:  /var/run/secrets/eks.amazonaws.com/serviceaccount/token
+    Mounts:
+      /var/run/secrets/eks.amazonaws.com/serviceaccount from aws-iam-token (ro)
+      /var/run/secrets/kubernetes.io/serviceaccount from kube-api-access-s6jzd (ro)
+Conditions:
+  Type                        Status
+  PodReadyToStartContainers   False 
+  Initialized                 True 
+  Ready                       False 
+  ContainersReady             False 
+  PodScheduled                True 
+Volumes:
+  aws-iam-token:
+    Type:                    Projected (a volume that contains injected data from multiple sources)
+    TokenExpirationSeconds:  86400
+  kube-api-access-s6jzd:
+    Type:                    Projected (a volume that contains injected data from multiple sources)
+    TokenExpirationSeconds:  3607
+    ConfigMapName:           kube-root-ca.crt
+    ConfigMapOptional:       <nil>
+    DownwardAPI:             true
+QoS Class:                   BestEffort
+Node-Selectors:              <none>
+Tolerations:                 node.kubernetes.io/not-ready:NoExecute op=Exists for 300s
+                             node.kubernetes.io/unreachable:NoExecute op=Exists for 300s
+Events:                      <none>
+
+
+Name:         mongodb-backup-28965720-p75fx
+Namespace:    xenia-stg
+Priority:     0
+Node:         ip-100-100-24-129.eu-west-1.compute.internal/100.100.24.129
+Start Time:   Mon, 27 Jan 2025 02:00:00 +0000
+Labels:       app=mongodb-backup
+              batch.kubernetes.io/controller-uid=bade7059-8e2e-458a-9b51-7988c8bef15e
+              batch.kubernetes.io/job-name=mongodb-backup-28965720
+              controller-uid=bade7059-8e2e-458a-9b51-7988c8bef15e
+              job-name=mongodb-backup-28965720
+Annotations:  eks.amazonaws.com/role-arn: arn:aws:iam::775103580568:role/awspgdev-s3BackupRestore
+              sidecar.istio.io/inject: false
+              vpc.amazonaws.com/pod-ips: 
+Status:       Succeeded
+IP:           100.100.26.233
+IPs:
+  IP:           100.100.26.233
+Controlled By:  Job/mongodb-backup-28965720
+Containers:
+  mongo-backup:
+    Container ID:  containerd://9afb9e51770087fe6ee50110fcb9737612bcb061f63d56630de73b53c3b82957
+    Image:         775103580568.dkr.ecr.eu-west-1.amazonaws.com/mongo-backup:v.2.0
+    Image ID:      775103580568.dkr.ecr.eu-west-1.amazonaws.com/mongo-backup@sha256:a88096a499d2231843d8054f241e9059a5975a73d973a225907748bc8b5ac8d1
+    Port:          <none>
+    Host Port:     <none>
+    Command:
+      /bin/bash
+      -c
+      set -e
+      
+      # Verify our mandatory environment variables are set
+      [ -z "${MONGO_URI}" ] && { echo "Need to set MONGO_URI"; exit 1; }
+      [ -z "${MONGO_USER}" ] && { echo "Need to set MONGO_USER"; exit 1; }
+      [ -z "${MONGO_PASS}" ] && { echo "Need to set MONGO_PASS"; exit 1; }
+      [ -z "${AWS_DEFAULT_REGION}" ] && { echo "Need to set AWS_DEFAULT_REGION"; exit 1; }
+      [ -z "${AWS_S3_BUCKET_NAME}" ] && { echo "Need to set AWS_S3_BUCKET_NAME"; exit 1; }
+      
+      MONGO_AUTH_DB="${MONGO_AUTH_DB:-admin}"
+      MONGO_BACKUP_NAME="${MONGO_BACKUP_NAME:-dump.all}"
+      BACKUP_NAME="${MONGO_BACKUP_NAME}.$(date +%Y%m%d_%H%M%S).gzip"
+      
+      echo "/usr/bin/mongodump \
+          --uri=${MONGO_URI} \
+          --username=${MONGO_USER} \
+          --authenticationDatabase=${MONGO_AUTH_DB} \
+          ${MONGO_BACKUP_PARAMS} \
+          --gzip  \
+          --archive=./${BACKUP_NAME}"
+      
+      /usr/bin/mongodump \
+          --uri="${MONGO_URI}" \
+          --username="${MONGO_USER}" \
+          --password="${MONGO_PASS}" \
+          --authenticationDatabase="${MONGO_AUTH_DB}" \
+          ${MONGO_BACKUP_PARAMS} \
+          --gzip  \
+          --archive="./${BACKUP_NAME}"
+      
+      aws s3 cp "./${BACKUP_NAME}" "s3://${AWS_S3_BUCKET_NAME}/${BACKUP_NAME}"
+      
+    State:          Terminated
+      Reason:       Completed
+      Exit Code:    0
+      Started:      Mon, 27 Jan 2025 02:00:01 +0000
+      Finished:     Mon, 27 Jan 2025 02:04:21 +0000
+    Ready:          False
+    Restart Count:  0
+    Environment:
+      AWS_DEFAULT_REGION:           eu-west-1
+      AWS_S3_BUCKET_NAME:           xenia-stg-mongo-backup
+      MONGO_BACKUP_NAME:            xenia
+      MONGO_BACKUP_PARAMS:          --db=xenia  --numParallelCollections=1
+      MONGO_URI:                    mongodb://xenia-stg-mongodb-headless.xenia-stg.svc
+      MONGO_USER:                   root
+      MONGO_PASS:                   <set to the key 'mongodb-root-password' in secret 'mongodb'>  Optional: false
+      AWS_STS_REGIONAL_ENDPOINTS:   regional
+      AWS_ROLE_ARN:                 arn:aws:iam::775103580568:role/awspgdev-s3BackupRestore
+      AWS_WEB_IDENTITY_TOKEN_FILE:  /var/run/secrets/eks.amazonaws.com/serviceaccount/token
+    Mounts:
+      /var/run/secrets/eks.amazonaws.com/serviceaccount from aws-iam-token (ro)
+      /var/run/secrets/kubernetes.io/serviceaccount from kube-api-access-tv7bb (ro)
+Conditions:
+  Type                        Status
+  PodReadyToStartContainers   False 
+  Initialized                 True 
+  Ready                       False 
+  ContainersReady             False 
+  PodScheduled                True 
+Volumes:
+  aws-iam-token:
+    Type:                    Projected (a volume that contains injected data from multiple sources)
+    TokenExpirationSeconds:  86400
+  kube-api-access-tv7bb:
+    Type:                    Projected (a volume that contains injected data from multiple sources)
+    TokenExpirationSeconds:  3607
+    ConfigMapName:           kube-root-ca.crt
+    ConfigMapOptional:       <nil>
+    DownwardAPI:             true
+QoS Class:                   BestEffort
+Node-Selectors:              <none>
+Tolerations:                 node.kubernetes.io/not-ready:NoExecute op=Exists for 300s
+                             node.kubernetes.io/unreachable:NoExecute op=Exists for 300s
+Events:                      <none>
+
+
+Name:         xenia-56b6dcb558-6hdql
+Namespace:    xenia-stg
+Priority:     0
+Node:         ip-100-100-31-113.eu-west-1.compute.internal/100.100.31.113
+Start Time:   Thu, 23 Jan 2025 15:42:53 +0000
+Labels:       app=xenia
+              pod-template-hash=56b6dcb558
+              security.istio.io/tlsMode=istio
+              service.istio.io/canonical-name=xenia
+              service.istio.io/canonical-revision=latest
+Annotations:  checksum/config: 62ad70c3587e4579b9ee8a03186f389ccd06fceba5b68f75fc67a924b075895b
+              config_sha256sum: 8ab9b
+              istio.io/rev: default
+              kubectl.kubernetes.io/default-container: xenia
+              kubectl.kubernetes.io/default-logs-container: xenia
+              kubectl.kubernetes.io/restartedAt: 2024-12-11T14:40:21Z
+              prometheus.io/path: /stats/prometheus
+              prometheus.io/port: 15020
+              prometheus.io/scrape: true
+              secrets_sha256sum: 7896a
+              sidecar.istio.io/status:
+                {"initContainers":["istio-init"],"containers":["istio-proxy"],"volumes":["workload-socket","credential-socket","workload-certs","istio-env...
+              vpc.amazonaws.com/pod-ips: 100.100.22.196
+Status:       Running
+IP:           100.100.22.196
+IPs:
+  IP:           100.100.22.196
+Controlled By:  ReplicaSet/xenia-56b6dcb558
+Init Containers:
+  istio-init:
+    Container ID:  containerd://2351cee6535494b8bf3b04f14361c45afeab18144395579a8c4bc91d359e2a24
+    Image:         gcr.io/istio-release/proxyv2:1.22.3
+    Image ID:      gcr.io/istio-release/proxyv2@sha256:36b52aff95b8bbf0a8e65941abb23d4b01fd58678a29adce7a8cd2eb019e937f
+    Port:          <none>
+    Host Port:     <none>
+    Args:
+      istio-iptables
+      -p
+      15001
+      -z
+      15006
+      -u
+      1337
+      -m
+      REDIRECT
+      -i
+      *
+      -x
+      
+      -b
+      *
+      -d
+      15090,15021,15020
+      --log_output_level=default:info
+    State:          Terminated
+      Reason:       Completed
+      Exit Code:    0
+      Started:      Thu, 23 Jan 2025 15:42:53 +0000
+      Finished:     Thu, 23 Jan 2025 15:42:53 +0000
+    Ready:          True
+    Restart Count:  0
+    Limits:
+      cpu:     2
+      memory:  1Gi
+    Requests:
+      cpu:     10m
+      memory:  128Mi
+    Environment:
+      SECRET_GRACE_PERIOD_RATIO:  0.143
+      SECRET_TTL:                 168h
+    Mounts:
+      /var/run/secrets/kubernetes.io/serviceaccount from kube-api-access-zwx25 (ro)
+Containers:
+  istio-proxy:
+    Container ID:  containerd://513bef89bcea29160f20b8f8270443d73a5ed6fe909ce180f0131e6ad177b2c8
+    Image:         gcr.io/istio-release/proxyv2:1.22.3
+    Image ID:      gcr.io/istio-release/proxyv2@sha256:36b52aff95b8bbf0a8e65941abb23d4b01fd58678a29adce7a8cd2eb019e937f
+    Port:          15090/TCP
+    Host Port:     0/TCP
+    Args:
+      proxy
+      sidecar
+      --domain
+      $(POD_NAMESPACE).svc.cluster.local
+      --proxyLogLevel=warning
+      --proxyComponentLogLevel=misc:error
+      --log_output_level=default:info
+    State:          Running
+      Started:      Thu, 23 Jan 2025 15:42:54 +0000
+    Ready:          True
+    Restart Count:  0
+    Limits:
+      cpu:     2
+      memory:  1Gi
+    Requests:
+      cpu:      10m
+      memory:   128Mi
+    Readiness:  http-get http://:15021/healthz/ready delay=0s timeout=3s period=15s #success=1 #failure=4
+    Startup:    http-get http://:15021/healthz/ready delay=0s timeout=3s period=1s #success=1 #failure=600
+    Environment:
+      PILOT_CERT_PROVIDER:           istiod
+      CA_ADDR:                       istiod.istio-system.svc:15012
+      POD_NAME:                      xenia-56b6dcb558-6hdql (v1:metadata.name)
+      POD_NAMESPACE:                 xenia-stg (v1:metadata.namespace)
+      INSTANCE_IP:                    (v1:status.podIP)
+      SERVICE_ACCOUNT:                (v1:spec.serviceAccountName)
+      HOST_IP:                        (v1:status.hostIP)
+      ISTIO_CPU_LIMIT:               2 (limits.cpu)
+      PROXY_CONFIG:                  {"proxyMetadata":{"SECRET_GRACE_PERIOD_RATIO":"0.143","SECRET_TTL":"168h"},"gatewayTopology":{},"holdApplicationUntilProxyStarts":true}
+                                     
+      ISTIO_META_POD_PORTS:          [
+                                         {"name":"api","containerPort":8080,"protocol":"TCP"}
+                                         ,{"name":"metrics","containerPort":8085,"protocol":"TCP"}
+                                     ]
+      ISTIO_META_APP_CONTAINERS:     xenia
+      GOMEMLIMIT:                    1073741824 (limits.memory)
+      GOMAXPROCS:                    2 (limits.cpu)
+      ISTIO_META_CLUSTER_ID:         Kubernetes
+      ISTIO_META_NODE_NAME:           (v1:spec.nodeName)
+      ISTIO_META_INTERCEPTION_MODE:  REDIRECT
+      ISTIO_META_WORKLOAD_NAME:      xenia
+      ISTIO_META_OWNER:              kubernetes://apis/apps/v1/namespaces/xenia-stg/deployments/xenia
+      ISTIO_META_MESH_ID:            cluster.local
+      TRUST_DOMAIN:                  cluster.local
+      SECRET_GRACE_PERIOD_RATIO:     0.143
+      SECRET_TTL:                    168h
+      ISTIO_KUBE_APP_PROBERS:        {"/app-health/xenia/livez":{"tcpSocket":{"port":8080},"timeoutSeconds":1},"/app-health/xenia/readyz":{"tcpSocket":{"port":8080},"timeoutSeconds":1}}
+    Mounts:
+      /etc/istio/pod from istio-podinfo (rw)
+      /etc/istio/proxy from istio-envoy (rw)
+      /var/lib/istio/data from istio-data (rw)
+      /var/run/secrets/credential-uds from credential-socket (rw)
+      /var/run/secrets/istio from istiod-ca-cert (rw)
+      /var/run/secrets/kubernetes.io/serviceaccount from kube-api-access-zwx25 (ro)
+      /var/run/secrets/tokens from istio-token (rw)
+      /var/run/secrets/workload-spiffe-credentials from workload-certs (rw)
+      /var/run/secrets/workload-spiffe-uds from workload-socket (rw)
+  xenia:
+    Container ID:   containerd://f14a43e150f98b365d3fe20bcde2643e4947daae1949c90d7b2beb531c352a9f
+    Image:          775103580568.dkr.ecr.eu-west-1.amazonaws.com/xenia/xenia:25.1.2_b1-24.3.0-105
+    Image ID:       775103580568.dkr.ecr.eu-west-1.amazonaws.com/xenia/xenia@sha256:f9dc97e542740120a4d2d055e4fcc7df5aee0309d7f736235bc91bdaa5b07d1a
+    Ports:          8080/TCP, 8085/TCP
+    Host Ports:     0/TCP, 0/TCP
+    State:          Running
+      Started:      Thu, 23 Jan 2025 15:42:56 +0000
+    Ready:          True
+    Restart Count:  0
+    Limits:
+      cpu:     2
+      memory:  2Gi
+    Requests:
+      cpu:      2
+      memory:   2Gi
+    Liveness:   http-get http://:15020/app-health/xenia/livez delay=10s timeout=1s period=10s #success=1 #failure=3
+    Readiness:  http-get http://:15020/app-health/xenia/readyz delay=30s timeout=1s period=5s #success=1 #failure=3
+    Environment:
+      CAS_SERVICE_URL:                   https://xenia-stg.pgil.gpas.io/engagement
+      CAS_URL:                           https://onelogin.techonlinecorp.com
+      DISABLE_METRICS_COLLECTION:        false
+      DISABLE_OUTBOUND_REQUEST_LOGGING:  true
+      ENABLE_DETAILED_TIMEZONE_LOGS:     true
+      LOGGER_MODE:                       true
+      LOG_LEVEL:                         info
+      METRICS_PORT:                      8085
+      MONGO_ARGS:                        ?authSource=admin&replicaSet=xenia_rs
+      MONGO_DB_NAME:                     xenia
+      NODE_ENV:                          staging
+      NODE_OPTIONS:                      --max-old-space-size=1536
+      OTLP_EXPORTER:                     http://global-collector-headless.observability.svc:4318/v1/
+      PORT:                              8080
+      RATE_LIMIT:                        2
+      RATE_TIME_SECONDS:                 1
+      REPORT_EXPIRATION_MINUTES:         10
+      SESSION_EXPIRATION_MINUTES:        60
+      SESSION_ID:                        xenia-stg
+      TELEMETRY_METRICS_ENDPOINT:        /nodejs_metrics
+      TELEMETRY_TARGET_NAMESPACE:        xenia-stg
+      TELEMETRY_TRACES_DEBUG:            false
+      TELEMETRY_TRACES_ENABLE:           true
+      API_SECRET:                        <set to the key 'API_SECRET' in secret 'xenia'>      Optional: false
+      CAS_APIKEY:                        <set to the key 'CAS_APIKEY' in secret 'xenia'>      Optional: false
+      MONGO_URI:                         <set to the key 'MONGO_URI' in secret 'xenia'>       Optional: false
+      SESSION_SECRET:                    <set to the key 'SESSION_SECRET' in secret 'xenia'>  Optional: false
+    Mounts:
+      /app/shared/enum/sites.js from xenia-config (rw,path="sites.js")
+      /app/sslcert from sslcert (ro)
+      /var/run/secrets/kubernetes.io/serviceaccount from kube-api-access-zwx25 (ro)
+Conditions:
+  Type                        Status
+  PodReadyToStartContainers   True 
+  Initialized                 True 
+  Ready                       True 
+  ContainersReady             True 
+  PodScheduled                True 
+Volumes:
+  workload-socket:
+    Type:       EmptyDir (a temporary directory that shares a pod's lifetime)
+    Medium:     
+    SizeLimit:  <unset>
+  credential-socket:
+    Type:       EmptyDir (a temporary directory that shares a pod's lifetime)
+    Medium:     
+    SizeLimit:  <unset>
+  workload-certs:
+    Type:       EmptyDir (a temporary directory that shares a pod's lifetime)
+    Medium:     
+    SizeLimit:  <unset>
+  istio-envoy:
+    Type:       EmptyDir (a temporary directory that shares a pod's lifetime)
+    Medium:     Memory
+    SizeLimit:  <unset>
+  istio-data:
+    Type:       EmptyDir (a temporary directory that shares a pod's lifetime)
+    Medium:     
+    SizeLimit:  <unset>
+  istio-podinfo:
+    Type:  DownwardAPI (a volume populated by information about the pod)
+    Items:
+      metadata.labels -> labels
+      metadata.annotations -> annotations
+  istio-token:
+    Type:                    Projected (a volume that contains injected data from multiple sources)
+    TokenExpirationSeconds:  43200
+  istiod-ca-cert:
+    Type:      ConfigMap (a volume populated by a ConfigMap)
+    Name:      istio-ca-root-cert
+    Optional:  false
+  sslcert:
+    Type:        Secret (a volume populated by a Secret)
+    SecretName:  xenia
+    Optional:    false
+  xenia-config:
+    Type:      ConfigMap (a volume populated by a ConfigMap)
+    Name:      xenia
+    Optional:  false
+  kube-api-access-zwx25:
+    Type:                    Projected (a volume that contains injected data from multiple sources)
+    TokenExpirationSeconds:  3607
+    ConfigMapName:           kube-root-ca.crt
+    ConfigMapOptional:       <nil>
+    DownwardAPI:             true
+QoS Class:                   Burstable
+Node-Selectors:              app=xenia_large
+Tolerations:                 dedicated=xenia_large:NoSchedule
+                             node.kubernetes.io/not-ready:NoExecute op=Exists for 300s
+                             node.kubernetes.io/unreachable:NoExecute op=Exists for 300s
+Events:                      <none>
+
+
+Name:         xenia-56b6dcb558-sr4jr
+Namespace:    xenia-stg
+Priority:     0
+Node:         ip-100-100-35-194.eu-west-1.compute.internal/100.100.35.194
+Start Time:   Thu, 23 Jan 2025 14:42:43 +0000
+Labels:       app=xenia
+              pod-template-hash=56b6dcb558
+              security.istio.io/tlsMode=istio
+              service.istio.io/canonical-name=xenia
+              service.istio.io/canonical-revision=latest
+Annotations:  checksum/config: 62ad70c3587e4579b9ee8a03186f389ccd06fceba5b68f75fc67a924b075895b
+              config_sha256sum: 8ab9b
+              istio.io/rev: default
+              kubectl.kubernetes.io/default-container: xenia
+              kubectl.kubernetes.io/default-logs-container: xenia
+              kubectl.kubernetes.io/restartedAt: 2024-12-11T14:40:21Z
+              prometheus.io/path: /stats/prometheus
+              prometheus.io/port: 15020
+              prometheus.io/scrape: true
+              secrets_sha256sum: 7896a
+              sidecar.istio.io/status:
+                {"initContainers":["istio-init"],"containers":["istio-proxy"],"volumes":["workload-socket","credential-socket","workload-certs","istio-env...
+              vpc.amazonaws.com/pod-ips: 100.100.38.210
+Status:       Running
+IP:           100.100.38.210
+IPs:
+  IP:           100.100.38.210
+Controlled By:  ReplicaSet/xenia-56b6dcb558
+Init Containers:
+  istio-init:
+    Container ID:  containerd://d7bee4d2aa063afcf11a466830616cfd00643093ad9455d288a510d623108c86
+    Image:         gcr.io/istio-release/proxyv2:1.22.3
+    Image ID:      gcr.io/istio-release/proxyv2@sha256:36b52aff95b8bbf0a8e65941abb23d4b01fd58678a29adce7a8cd2eb019e937f
+    Port:          <none>
+    Host Port:     <none>
+    Args:
+      istio-iptables
+      -p
+      15001
+      -z
+      15006
+      -u
+      1337
+      -m
+      REDIRECT
+      -i
+      *
+      -x
+      
+      -b
+      *
+      -d
+      15090,15021,15020
+      --log_output_level=default:info
+    State:          Terminated
+      Reason:       Completed
+      Exit Code:    0
+      Started:      Thu, 23 Jan 2025 14:42:44 +0000
+      Finished:     Thu, 23 Jan 2025 14:42:44 +0000
+    Ready:          True
+    Restart Count:  0
+    Limits:
+      cpu:     2
+      memory:  1Gi
+    Requests:
+      cpu:     10m
+      memory:  128Mi
+    Environment:
+      SECRET_GRACE_PERIOD_RATIO:  0.143
+      SECRET_TTL:                 168h
+    Mounts:
+      /var/run/secrets/kubernetes.io/serviceaccount from kube-api-access-q825s (ro)
+Containers:
+  istio-proxy:
+    Container ID:  containerd://b63106d6228e8c699d6083bdab96ca213d2ccf684a22163727fd9d95e157136e
+    Image:         gcr.io/istio-release/proxyv2:1.22.3
+    Image ID:      gcr.io/istio-release/proxyv2@sha256:36b52aff95b8bbf0a8e65941abb23d4b01fd58678a29adce7a8cd2eb019e937f
+    Port:          15090/TCP
+    Host Port:     0/TCP
+    Args:
+      proxy
+      sidecar
+      --domain
+      $(POD_NAMESPACE).svc.cluster.local
+      --proxyLogLevel=warning
+      --proxyComponentLogLevel=misc:error
+      --log_output_level=default:info
+    State:          Running
+      Started:      Thu, 23 Jan 2025 14:42:44 +0000
+    Ready:          True
+    Restart Count:  0
+    Limits:
+      cpu:     2
+      memory:  1Gi
+    Requests:
+      cpu:      10m
+      memory:   128Mi
+    Readiness:  http-get http://:15021/healthz/ready delay=0s timeout=3s period=15s #success=1 #failure=4
+    Startup:    http-get http://:15021/healthz/ready delay=0s timeout=3s period=1s #success=1 #failure=600
+    Environment:
+      PILOT_CERT_PROVIDER:           istiod
+      CA_ADDR:                       istiod.istio-system.svc:15012
+      POD_NAME:                      xenia-56b6dcb558-sr4jr (v1:metadata.name)
+      POD_NAMESPACE:                 xenia-stg (v1:metadata.namespace)
+      INSTANCE_IP:                    (v1:status.podIP)
+      SERVICE_ACCOUNT:                (v1:spec.serviceAccountName)
+      HOST_IP:                        (v1:status.hostIP)
+      ISTIO_CPU_LIMIT:               2 (limits.cpu)
+      PROXY_CONFIG:                  {"proxyMetadata":{"SECRET_GRACE_PERIOD_RATIO":"0.143","SECRET_TTL":"168h"},"gatewayTopology":{},"holdApplicationUntilProxyStarts":true}
+                                     
+      ISTIO_META_POD_PORTS:          [
+                                         {"name":"api","containerPort":8080,"protocol":"TCP"}
+                                         ,{"name":"metrics","containerPort":8085,"protocol":"TCP"}
+                                     ]
+      ISTIO_META_APP_CONTAINERS:     xenia
+      GOMEMLIMIT:                    1073741824 (limits.memory)
+      GOMAXPROCS:                    2 (limits.cpu)
+      ISTIO_META_CLUSTER_ID:         Kubernetes
+      ISTIO_META_NODE_NAME:           (v1:spec.nodeName)
+      ISTIO_META_INTERCEPTION_MODE:  REDIRECT
+      ISTIO_META_WORKLOAD_NAME:      xenia
+      ISTIO_META_OWNER:              kubernetes://apis/apps/v1/namespaces/xenia-stg/deployments/xenia
+      ISTIO_META_MESH_ID:            cluster.local
+      TRUST_DOMAIN:                  cluster.local
+      SECRET_GRACE_PERIOD_RATIO:     0.143
+      SECRET_TTL:                    168h
+      ISTIO_KUBE_APP_PROBERS:        {"/app-health/xenia/livez":{"tcpSocket":{"port":8080},"timeoutSeconds":1},"/app-health/xenia/readyz":{"tcpSocket":{"port":8080},"timeoutSeconds":1}}
+    Mounts:
+      /etc/istio/pod from istio-podinfo (rw)
+      /etc/istio/proxy from istio-envoy (rw)
+      /var/lib/istio/data from istio-data (rw)
+      /var/run/secrets/credential-uds from credential-socket (rw)
+      /var/run/secrets/istio from istiod-ca-cert (rw)
+      /var/run/secrets/kubernetes.io/serviceaccount from kube-api-access-q825s (ro)
+      /var/run/secrets/tokens from istio-token (rw)
+      /var/run/secrets/workload-spiffe-credentials from workload-certs (rw)
+      /var/run/secrets/workload-spiffe-uds from workload-socket (rw)
+  xenia:
+    Container ID:   containerd://d31ff973ff798b1b1de246c350c4f6534c774193e2706c61768f2d8a3f59f32d
+    Image:          775103580568.dkr.ecr.eu-west-1.amazonaws.com/xenia/xenia:25.1.2_b1-24.3.0-105
+    Image ID:       775103580568.dkr.ecr.eu-west-1.amazonaws.com/xenia/xenia@sha256:f9dc97e542740120a4d2d055e4fcc7df5aee0309d7f736235bc91bdaa5b07d1a
+    Ports:          8080/TCP, 8085/TCP
+    Host Ports:     0/TCP, 0/TCP
+    State:          Running
+      Started:      Thu, 23 Jan 2025 14:42:57 +0000
+    Ready:          True
+    Restart Count:  0
+    Limits:
+      cpu:     2
+      memory:  2Gi
+    Requests:
+      cpu:      2
+      memory:   2Gi
+    Liveness:   http-get http://:15020/app-health/xenia/livez delay=10s timeout=1s period=10s #success=1 #failure=3
+    Readiness:  http-get http://:15020/app-health/xenia/readyz delay=30s timeout=1s period=5s #success=1 #failure=3
+    Environment:
+      CAS_SERVICE_URL:                   https://xenia-stg.pgil.gpas.io/engagement
+      CAS_URL:                           https://onelogin.techonlinecorp.com
+      DISABLE_METRICS_COLLECTION:        false
+      DISABLE_OUTBOUND_REQUEST_LOGGING:  true
+      ENABLE_DETAILED_TIMEZONE_LOGS:     true
+      LOGGER_MODE:                       true
+      LOG_LEVEL:                         info
+      METRICS_PORT:                      8085
+      MONGO_ARGS:                        ?authSource=admin&replicaSet=xenia_rs
+      MONGO_DB_NAME:                     xenia
+      NODE_ENV:                          staging
+      NODE_OPTIONS:                      --max-old-space-size=1536
+      OTLP_EXPORTER:                     http://global-collector-headless.observability.svc:4318/v1/
+      PORT:                              8080
+      RATE_LIMIT:                        2
+      RATE_TIME_SECONDS:                 1
+      REPORT_EXPIRATION_MINUTES:         10
+      SESSION_EXPIRATION_MINUTES:        60
+      SESSION_ID:                        xenia-stg
+      TELEMETRY_METRICS_ENDPOINT:        /nodejs_metrics
+      TELEMETRY_TARGET_NAMESPACE:        xenia-stg
+      TELEMETRY_TRACES_DEBUG:            false
+      TELEMETRY_TRACES_ENABLE:           true
+      API_SECRET:                        <set to the key 'API_SECRET' in secret 'xenia'>      Optional: false
+      CAS_APIKEY:                        <set to the key 'CAS_APIKEY' in secret 'xenia'>      Optional: false
+      MONGO_URI:                         <set to the key 'MONGO_URI' in secret 'xenia'>       Optional: false
+      SESSION_SECRET:                    <set to the key 'SESSION_SECRET' in secret 'xenia'>  Optional: false
+    Mounts:
+      /app/shared/enum/sites.js from xenia-config (rw,path="sites.js")
+      /app/sslcert from sslcert (ro)
+      /var/run/secrets/kubernetes.io/serviceaccount from kube-api-access-q825s (ro)
+Conditions:
+  Type                        Status
+  PodReadyToStartContainers   True 
+  Initialized                 True 
+  Ready                       True 
+  ContainersReady             True 
+  PodScheduled                True 
+Volumes:
+  workload-socket:
+    Type:       EmptyDir (a temporary directory that shares a pod's lifetime)
+    Medium:     
+    SizeLimit:  <unset>
+  credential-socket:
+    Type:       EmptyDir (a temporary directory that shares a pod's lifetime)
+    Medium:     
+    SizeLimit:  <unset>
+  workload-certs:
+    Type:       EmptyDir (a temporary directory that shares a pod's lifetime)
+    Medium:     
+    SizeLimit:  <unset>
+  istio-envoy:
+    Type:       EmptyDir (a temporary directory that shares a pod's lifetime)
+    Medium:     Memory
+    SizeLimit:  <unset>
+  istio-data:
+    Type:       EmptyDir (a temporary directory that shares a pod's lifetime)
+    Medium:     
+    SizeLimit:  <unset>
+  istio-podinfo:
+    Type:  DownwardAPI (a volume populated by information about the pod)
+    Items:
+      metadata.labels -> labels
+      metadata.annotations -> annotations
+  istio-token:
+    Type:                    Projected (a volume that contains injected data from multiple sources)
+    TokenExpirationSeconds:  43200
+  istiod-ca-cert:
+    Type:      ConfigMap (a volume populated by a ConfigMap)
+    Name:      istio-ca-root-cert
+    Optional:  false
+  sslcert:
+    Type:        Secret (a volume populated by a Secret)
+    SecretName:  xenia
+    Optional:    false
+  xenia-config:
+    Type:      ConfigMap (a volume populated by a ConfigMap)
+    Name:      xenia
+    Optional:  false
+  kube-api-access-q825s:
+    Type:                    Projected (a volume that contains injected data from multiple sources)
+    TokenExpirationSeconds:  3607
+    ConfigMapName:           kube-root-ca.crt
+    ConfigMapOptional:       <nil>
+    DownwardAPI:             true
+QoS Class:                   Burstable
+Node-Selectors:              app=xenia_large
+Tolerations:                 dedicated=xenia_large:NoSchedule
+                             node.kubernetes.io/not-ready:NoExecute op=Exists for 300s
+                             node.kubernetes.io/unreachable:NoExecute op=Exists for 300s
+Events:                      <none>
+
+
+Name:         xenia-stg-mongodb-0
+Namespace:    xenia-stg
+Priority:     0
+Node:         ip-100-100-41-106.eu-west-1.compute.internal/100.100.41.106
+Start Time:   Thu, 14 Nov 2024 16:08:29 +0000
+Labels:       app.kubernetes.io/component=mongodb
+              app.kubernetes.io/instance=xenia-stg-mongodb
+              app.kubernetes.io/managed-by=Helm
+              app.kubernetes.io/name=mongodb
+              apps.kubernetes.io/pod-index=0
+              controller-revision-hash=xenia-stg-mongodb-77b785c789
+              helm.sh/chart=mongodb-13.10.1
+              security.istio.io/tlsMode=istio
+              service.istio.io/canonical-name=mongodb
+              service.istio.io/canonical-revision=latest
+              statefulset.kubernetes.io/pod-name=xenia-stg-mongodb-0
+Annotations:  istio.io/rev: default
+              kubectl.kubernetes.io/default-container: mongodb
+              kubectl.kubernetes.io/default-logs-container: mongodb
+              prometheus.io/path: /stats/prometheus
+              prometheus.io/port: 15020
+              prometheus.io/scrape: true
+              sidecar.istio.io/status:
+                {"initContainers":["istio-init"],"containers":["istio-proxy"],"volumes":["workload-socket","credential-socket","workload-certs","istio-env...
+              vpc.amazonaws.com/pod-ips: 100.100.32.141
+Status:       Running
+IP:           100.100.32.141
+IPs:
+  IP:           100.100.32.141
+Controlled By:  StatefulSet/xenia-stg-mongodb
+Init Containers:
+  istio-init:
+    Container ID:  containerd://6762e9675f7dcd37f91b36a79d6882a55b4af1ae356d25a9f20378ff1bf0d1aa
+    Image:         gcr.io/istio-release/proxyv2:1.22.3
+    Image ID:      gcr.io/istio-release/proxyv2@sha256:36b52aff95b8bbf0a8e65941abb23d4b01fd58678a29adce7a8cd2eb019e937f
+    Port:          <none>
+    Host Port:     <none>
+    Args:
+      istio-iptables
+      -p
+      15001
+      -z
+      15006
+      -u
+      1337
+      -m
+      REDIRECT
+      -i
+      *
+      -x
+      
+      -b
+      *
+      -d
+      15090,15021,15020
+      --log_output_level=default:info
+    State:          Terminated
+      Reason:       Completed
+      Exit Code:    0
+      Started:      Thu, 14 Nov 2024 16:08:34 +0000
+      Finished:     Thu, 14 Nov 2024 16:08:35 +0000
+    Ready:          True
+    Restart Count:  0
+    Limits:
+      cpu:     2
+      memory:  1Gi
+    Requests:
+      cpu:     10m
+      memory:  128Mi
+    Environment:
+      SECRET_GRACE_PERIOD_RATIO:  0.143
+      SECRET_TTL:                 168h
+    Mounts:
+      /var/run/secrets/kubernetes.io/serviceaccount from kube-api-access-pqbw7 (ro)
+Containers:
+  istio-proxy:
+    Container ID:  containerd://67ce04f88c1a49b812f68ca705e6cd6cfa1645ce2190aaa63ef861c79f664b0f
+    Image:         gcr.io/istio-release/proxyv2:1.22.3
+    Image ID:      gcr.io/istio-release/proxyv2@sha256:36b52aff95b8bbf0a8e65941abb23d4b01fd58678a29adce7a8cd2eb019e937f
+    Port:          15090/TCP
+    Host Port:     0/TCP
+    Args:
+      proxy
+      sidecar
+      --domain
+      $(POD_NAMESPACE).svc.cluster.local
+      --proxyLogLevel=warning
+      --proxyComponentLogLevel=misc:error
+      --log_output_level=default:info
+    State:          Running
+      Started:      Thu, 14 Nov 2024 16:08:35 +0000
+    Ready:          True
+    Restart Count:  0
+    Limits:
+      cpu:     2
+      memory:  1Gi
+    Requests:
+      cpu:      10m
+      memory:   128Mi
+    Readiness:  http-get http://:15021/healthz/ready delay=0s timeout=3s period=15s #success=1 #failure=4
+    Startup:    http-get http://:15021/healthz/ready delay=0s timeout=3s period=1s #success=1 #failure=600
+    Environment:
+      PILOT_CERT_PROVIDER:           istiod
+      CA_ADDR:                       istiod.istio-system.svc:15012
+      POD_NAME:                      xenia-stg-mongodb-0 (v1:metadata.name)
+      POD_NAMESPACE:                 xenia-stg (v1:metadata.namespace)
+      INSTANCE_IP:                    (v1:status.podIP)
+      SERVICE_ACCOUNT:                (v1:spec.serviceAccountName)
+      HOST_IP:                        (v1:status.hostIP)
+      ISTIO_CPU_LIMIT:               2 (limits.cpu)
+      PROXY_CONFIG:                  {"proxyMetadata":{"SECRET_GRACE_PERIOD_RATIO":"0.143","SECRET_TTL":"168h"},"gatewayTopology":{},"holdApplicationUntilProxyStarts":true}
+                                     
+      ISTIO_META_POD_PORTS:          [
+                                         {"name":"mongodb","containerPort":27017,"protocol":"TCP"}
+                                         ,{"name":"metrics","containerPort":9216,"protocol":"TCP"}
+                                     ]
+      ISTIO_META_APP_CONTAINERS:     mongodb,metrics
+      GOMEMLIMIT:                    1073741824 (limits.memory)
+      GOMAXPROCS:                    2 (limits.cpu)
+      ISTIO_META_CLUSTER_ID:         Kubernetes
+      ISTIO_META_NODE_NAME:           (v1:spec.nodeName)
+      ISTIO_META_INTERCEPTION_MODE:  REDIRECT
+      ISTIO_META_WORKLOAD_NAME:      xenia-stg-mongodb
+      ISTIO_META_OWNER:              kubernetes://apis/apps/v1/namespaces/xenia-stg/statefulsets/xenia-stg-mongodb
+      ISTIO_META_MESH_ID:            cluster.local
+      TRUST_DOMAIN:                  cluster.local
+      SECRET_GRACE_PERIOD_RATIO:     0.143
+      SECRET_TTL:                    168h
+      ISTIO_KUBE_APP_PROBERS:        {"/app-health/metrics/livez":{"httpGet":{"path":"/","port":9216,"scheme":"HTTP"},"timeoutSeconds":10},"/app-health/metrics/readyz":{"httpGet":{"path":"/","port":9216,"scheme":"HTTP"},"timeoutSeconds":10}}
+    Mounts:
+      /etc/istio/pod from istio-podinfo (rw)
+      /etc/istio/proxy from istio-envoy (rw)
+      /var/lib/istio/data from istio-data (rw)
+      /var/run/secrets/credential-uds from credential-socket (rw)
+      /var/run/secrets/istio from istiod-ca-cert (rw)
+      /var/run/secrets/kubernetes.io/serviceaccount from kube-api-access-pqbw7 (ro)
+      /var/run/secrets/tokens from istio-token (rw)
+      /var/run/secrets/workload-spiffe-credentials from workload-certs (rw)
+      /var/run/secrets/workload-spiffe-uds from workload-socket (rw)
+  mongodb:
+    Container ID:  containerd://61bb640a2e4a665f60489ffa91b90c64726e69ba8dd57528399b7b781bc56f11
+    Image:         775103580568.dkr.ecr.eu-west-1.amazonaws.com/bitnami/mongodb:6.0.12-debian-11-r5
+    Image ID:      775103580568.dkr.ecr.eu-west-1.amazonaws.com/bitnami/mongodb@sha256:13211287744dc6f6e7ced6d68a528063cbc34dd88d3b321b3e6658d7b06c1b7c
+    Port:          27017/TCP
+    Host Port:     0/TCP
+    Command:
+      /scripts/setup.sh
+    State:          Running
+      Started:      Thu, 14 Nov 2024 16:08:37 +0000
+    Ready:          True
+    Restart Count:  0
+    Limits:
+      cpu:     2
+      memory:  6Gi
+    Requests:
+      cpu:      1
+      memory:   2560Mi
+    Liveness:   exec [/bitnami/scripts/ping-mongodb.sh] delay=30s timeout=10s period=60s #success=1 #failure=2
+    Readiness:  exec [/bitnami/scripts/readiness-probe.sh] delay=5s timeout=5s period=30s #success=1 #failure=2
+    Environment:
+      BITNAMI_DEBUG:                    true
+      MY_POD_NAME:                      xenia-stg-mongodb-0 (v1:metadata.name)
+      MY_POD_NAMESPACE:                 xenia-stg (v1:metadata.namespace)
+      MY_POD_HOST_IP:                    (v1:status.hostIP)
+      K8S_SERVICE_NAME:                 xenia-stg-mongodb-headless
+      MONGODB_INITIAL_PRIMARY_HOST:     xenia-stg-mongodb-0.$(K8S_SERVICE_NAME).$(MY_POD_NAMESPACE).svc.cluster.local
+      MONGODB_REPLICA_SET_NAME:         xenia_rs
+      MONGODB_ADVERTISED_HOSTNAME:      $(MY_POD_NAME).$(K8S_SERVICE_NAME).$(MY_POD_NAMESPACE).svc.cluster.local
+      MONGODB_EXTRA_USERNAMES:          xenia
+      MONGODB_EXTRA_DATABASES:          xenia
+      MONGODB_EXTRA_PASSWORDS:          <set to the key 'mongodb-passwords' in secret 'mongodb'>  Optional: false
+      MONGODB_ROOT_USER:                root
+      MONGODB_ROOT_PASSWORD:            <set to the key 'mongodb-root-password' in secret 'mongodb'>    Optional: false
+      MONGODB_REPLICA_SET_KEY:          <set to the key 'mongodb-replica-set-key' in secret 'mongodb'>  Optional: false
+      ALLOW_EMPTY_PASSWORD:             no
+      MONGODB_SYSTEM_LOG_VERBOSITY:     0
+      MONGODB_DISABLE_SYSTEM_LOG:       no
+      MONGODB_DISABLE_JAVASCRIPT:       no
+      MONGODB_ENABLE_JOURNAL:           yes
+      MONGODB_PORT_NUMBER:              27017
+      MONGODB_ENABLE_IPV6:              no
+      MONGODB_ENABLE_DIRECTORY_PER_DB:  yes
+      MONGODB_EXTRA_FLAGS:              --wiredTigerCacheSizeGB=4.5
+    Mounts:
+      /bitnami/mongodb from datadir (rw)
+      /bitnami/scripts from common-scripts (rw)
+      /docker-entrypoint-initdb.d from custom-init-scripts (rw)
+      /scripts/setup.sh from scripts (rw,path="setup.sh")
+      /var/run/secrets/kubernetes.io/serviceaccount from kube-api-access-pqbw7 (ro)
+  metrics:
+    Container ID:  containerd://81562e71b10255ca72713e201b0c70a32ebdda6bd8133cdbf7cb90f684e4d51e
+    Image:         775103580568.dkr.ecr.eu-west-1.amazonaws.com/bitnami/mongodb-exporter:0.37.0-debian-11-r15
+    Image ID:      775103580568.dkr.ecr.eu-west-1.amazonaws.com/bitnami/mongodb-exporter@sha256:ad61f2f18cbcd056466c7e9bf4cc2efdb900f73ae2756596655419b40d6fd46e
+    Port:          9216/TCP
+    Host Port:     0/TCP
+    Command:
+      /bin/bash
+      -ec
+    Args:
+      /bin/mongodb_exporter --collect-all --compatible-mode --web.listen-address ":9216" --mongodb.uri "mongodb://$MONGODB_ROOT_USER:$(echo $MONGODB_ROOT_PASSWORD | sed -r "s/@/%40/g;s/:/%3A/g")@localhost:27017/admin?" --discovering-mode --mongodb.collstats-colls=xenia
+      
+    State:          Running
+      Started:      Thu, 14 Nov 2024 16:08:37 +0000
+    Ready:          True
+    Restart Count:  0
+    Liveness:       http-get http://:15020/app-health/metrics/livez delay=15s timeout=10s period=5s #success=1 #failure=3
+    Readiness:      http-get http://:15020/app-health/metrics/readyz delay=5s timeout=10s period=5s #success=1 #failure=3
+    Environment:
+      MONGODB_ROOT_USER:      root
+      MONGODB_ROOT_PASSWORD:  <set to the key 'mongodb-root-password' in secret 'mongodb'>  Optional: false
+    Mounts:
+      /var/run/secrets/kubernetes.io/serviceaccount from kube-api-access-pqbw7 (ro)
+Conditions:
+  Type                        Status
+  PodReadyToStartContainers   True 
+  Initialized                 True 
+  Ready                       True 
+  ContainersReady             True 
+  PodScheduled                True 
+Volumes:
+  workload-socket:
+    Type:       EmptyDir (a temporary directory that shares a pod's lifetime)
+    Medium:     
+    SizeLimit:  <unset>
+  credential-socket:
+    Type:       EmptyDir (a temporary directory that shares a pod's lifetime)
+    Medium:     
+    SizeLimit:  <unset>
+  workload-certs:
+    Type:       EmptyDir (a temporary directory that shares a pod's lifetime)
+    Medium:     
+    SizeLimit:  <unset>
+  istio-envoy:
+    Type:       EmptyDir (a temporary directory that shares a pod's lifetime)
+    Medium:     Memory
+    SizeLimit:  <unset>
+  istio-data:
+    Type:       EmptyDir (a temporary directory that shares a pod's lifetime)
+    Medium:     
+    SizeLimit:  <unset>
+  istio-podinfo:
+    Type:  DownwardAPI (a volume populated by information about the pod)
+    Items:
+      metadata.labels -> labels
+      metadata.annotations -> annotations
+  istio-token:
+    Type:                    Projected (a volume that contains injected data from multiple sources)
+    TokenExpirationSeconds:  43200
+  istiod-ca-cert:
+    Type:      ConfigMap (a volume populated by a ConfigMap)
+    Name:      istio-ca-root-cert
+    Optional:  false
+  datadir:
+    Type:       PersistentVolumeClaim (a reference to a PersistentVolumeClaim in the same namespace)
+    ClaimName:  datadir-xenia-stg-mongodb-0
+    ReadOnly:   false
+  common-scripts:
+    Type:      ConfigMap (a volume populated by a ConfigMap)
+    Name:      xenia-stg-mongodb-common-scripts
+    Optional:  false
+  custom-init-scripts:
+    Type:      ConfigMap (a volume populated by a ConfigMap)
+    Name:      xenia-stg-mongodb-init-scripts
+    Optional:  false
+  scripts:
+    Type:      ConfigMap (a volume populated by a ConfigMap)
+    Name:      xenia-stg-mongodb-scripts
+    Optional:  false
+  kube-api-access-pqbw7:
+    Type:                    Projected (a volume that contains injected data from multiple sources)
+    TokenExpirationSeconds:  3607
+    ConfigMapName:           kube-root-ca.crt
+    ConfigMapOptional:       <nil>
+    DownwardAPI:             true
+QoS Class:                   Burstable
+Node-Selectors:              app=xenia_stg_db
+Tolerations:                 dedicated=xenia_stg_db:NoSchedule
+                             node.kubernetes.io/not-ready:NoExecute op=Exists for 300s
+                             node.kubernetes.io/unreachable:NoExecute op=Exists for 300s
+Events:                      <none>
+
+
+Name:         xenia-stg-mongodb-1
+Namespace:    xenia-stg
+Priority:     0
+Node:         ip-100-100-58-211.eu-west-1.compute.internal/100.100.58.211
+Start Time:   Thu, 14 Nov 2024 16:07:43 +0000
+Labels:       app.kubernetes.io/component=mongodb
+              app.kubernetes.io/instance=xenia-stg-mongodb
+              app.kubernetes.io/managed-by=Helm
+              app.kubernetes.io/name=mongodb
+              apps.kubernetes.io/pod-index=1
+              controller-revision-hash=xenia-stg-mongodb-77b785c789
+              helm.sh/chart=mongodb-13.10.1
+              security.istio.io/tlsMode=istio
+              service.istio.io/canonical-name=mongodb
+              service.istio.io/canonical-revision=latest
+              statefulset.kubernetes.io/pod-name=xenia-stg-mongodb-1
+Annotations:  istio.io/rev: default
+              kubectl.kubernetes.io/default-container: mongodb
+              kubectl.kubernetes.io/default-logs-container: mongodb
+              prometheus.io/path: /stats/prometheus
+              prometheus.io/port: 15020
+              prometheus.io/scrape: true
+              sidecar.istio.io/status:
+                {"initContainers":["istio-init"],"containers":["istio-proxy"],"volumes":["workload-socket","credential-socket","workload-certs","istio-env...
+              vpc.amazonaws.com/pod-ips: 100.100.62.149
+Status:       Running
+IP:           100.100.62.149
+IPs:
+  IP:           100.100.62.149
+Controlled By:  StatefulSet/xenia-stg-mongodb
+Init Containers:
+  istio-init:
+    Container ID:  containerd://eea0bd6b3f0e27d0b0141838717094f770dcaf092227249044bfa9caf08a7159
+    Image:         gcr.io/istio-release/proxyv2:1.22.3
+    Image ID:      gcr.io/istio-release/proxyv2@sha256:36b52aff95b8bbf0a8e65941abb23d4b01fd58678a29adce7a8cd2eb019e937f
+    Port:          <none>
+    Host Port:     <none>
+    Args:
+      istio-iptables
+      -p
+      15001
+      -z
+      15006
+      -u
+      1337
+      -m
+      REDIRECT
+      -i
+      *
+      -x
+      
+      -b
+      *
+      -d
+      15090,15021,15020
+      --log_output_level=default:info
+    State:          Terminated
+      Reason:       Completed
+      Exit Code:    0
+      Started:      Thu, 14 Nov 2024 16:07:52 +0000
+      Finished:     Thu, 14 Nov 2024 16:07:52 +0000
+    Ready:          True
+    Restart Count:  0
+    Limits:
+      cpu:     2
+      memory:  1Gi
+    Requests:
+      cpu:     10m
+      memory:  128Mi
+    Environment:
+      SECRET_GRACE_PERIOD_RATIO:  0.143
+      SECRET_TTL:                 168h
+    Mounts:
+      /var/run/secrets/kubernetes.io/serviceaccount from kube-api-access-8chf4 (ro)
+Containers:
+  istio-proxy:
+    Container ID:  containerd://f0d10c36ec20b509a0d0ac16333c2347445a827698c02d36c23f9585f7af7b03
+    Image:         gcr.io/istio-release/proxyv2:1.22.3
+    Image ID:      gcr.io/istio-release/proxyv2@sha256:36b52aff95b8bbf0a8e65941abb23d4b01fd58678a29adce7a8cd2eb019e937f
+    Port:          15090/TCP
+    Host Port:     0/TCP
+    Args:
+      proxy
+      sidecar
+      --domain
+      $(POD_NAMESPACE).svc.cluster.local
+      --proxyLogLevel=warning
+      --proxyComponentLogLevel=misc:error
+      --log_output_level=default:info
+    State:          Running
+      Started:      Thu, 14 Nov 2024 16:07:52 +0000
+    Ready:          True
+    Restart Count:  0
+    Limits:
+      cpu:     2
+      memory:  1Gi
+    Requests:
+      cpu:      10m
+      memory:   128Mi
+    Readiness:  http-get http://:15021/healthz/ready delay=0s timeout=3s period=15s #success=1 #failure=4
+    Startup:    http-get http://:15021/healthz/ready delay=0s timeout=3s period=1s #success=1 #failure=600
+    Environment:
+      PILOT_CERT_PROVIDER:           istiod
+      CA_ADDR:                       istiod.istio-system.svc:15012
+      POD_NAME:                      xenia-stg-mongodb-1 (v1:metadata.name)
+      POD_NAMESPACE:                 xenia-stg (v1:metadata.namespace)
+      INSTANCE_IP:                    (v1:status.podIP)
+      SERVICE_ACCOUNT:                (v1:spec.serviceAccountName)
+      HOST_IP:                        (v1:status.hostIP)
+      ISTIO_CPU_LIMIT:               2 (limits.cpu)
+      PROXY_CONFIG:                  {"proxyMetadata":{"SECRET_GRACE_PERIOD_RATIO":"0.143","SECRET_TTL":"168h"},"gatewayTopology":{},"holdApplicationUntilProxyStarts":true}
+                                     
+      ISTIO_META_POD_PORTS:          [
+                                         {"name":"mongodb","containerPort":27017,"protocol":"TCP"}
+                                         ,{"name":"metrics","containerPort":9216,"protocol":"TCP"}
+                                     ]
+      ISTIO_META_APP_CONTAINERS:     mongodb,metrics
+      GOMEMLIMIT:                    1073741824 (limits.memory)
+      GOMAXPROCS:                    2 (limits.cpu)
+      ISTIO_META_CLUSTER_ID:         Kubernetes
+      ISTIO_META_NODE_NAME:           (v1:spec.nodeName)
+      ISTIO_META_INTERCEPTION_MODE:  REDIRECT
+      ISTIO_META_WORKLOAD_NAME:      xenia-stg-mongodb
+      ISTIO_META_OWNER:              kubernetes://apis/apps/v1/namespaces/xenia-stg/statefulsets/xenia-stg-mongodb
+      ISTIO_META_MESH_ID:            cluster.local
+      TRUST_DOMAIN:                  cluster.local
+      SECRET_GRACE_PERIOD_RATIO:     0.143
+      SECRET_TTL:                    168h
+      ISTIO_KUBE_APP_PROBERS:        {"/app-health/metrics/livez":{"httpGet":{"path":"/","port":9216,"scheme":"HTTP"},"timeoutSeconds":10},"/app-health/metrics/readyz":{"httpGet":{"path":"/","port":9216,"scheme":"HTTP"},"timeoutSeconds":10}}
+    Mounts:
+      /etc/istio/pod from istio-podinfo (rw)
+      /etc/istio/proxy from istio-envoy (rw)
+      /var/lib/istio/data from istio-data (rw)
+      /var/run/secrets/credential-uds from credential-socket (rw)
+      /var/run/secrets/istio from istiod-ca-cert (rw)
+      /var/run/secrets/kubernetes.io/serviceaccount from kube-api-access-8chf4 (ro)
+      /var/run/secrets/tokens from istio-token (rw)
+      /var/run/secrets/workload-spiffe-credentials from workload-certs (rw)
+      /var/run/secrets/workload-spiffe-uds from workload-socket (rw)
+  mongodb:
+    Container ID:  containerd://2a963a1002e1cb4b7e84ad2e9f6f5a5dfedb294f9ec456e88c4b26ce6907cc5d
+    Image:         775103580568.dkr.ecr.eu-west-1.amazonaws.com/bitnami/mongodb:6.0.12-debian-11-r5
+    Image ID:      775103580568.dkr.ecr.eu-west-1.amazonaws.com/bitnami/mongodb@sha256:13211287744dc6f6e7ced6d68a528063cbc34dd88d3b321b3e6658d7b06c1b7c
+    Port:          27017/TCP
+    Host Port:     0/TCP
+    Command:
+      /scripts/setup.sh
+    State:          Running
+      Started:      Thu, 14 Nov 2024 16:07:54 +0000
+    Ready:          True
+    Restart Count:  0
+    Limits:
+      cpu:     2
+      memory:  6Gi
+    Requests:
+      cpu:      1
+      memory:   2560Mi
+    Liveness:   exec [/bitnami/scripts/ping-mongodb.sh] delay=30s timeout=10s period=60s #success=1 #failure=2
+    Readiness:  exec [/bitnami/scripts/readiness-probe.sh] delay=5s timeout=5s period=30s #success=1 #failure=2
+    Environment:
+      BITNAMI_DEBUG:                    true
+      MY_POD_NAME:                      xenia-stg-mongodb-1 (v1:metadata.name)
+      MY_POD_NAMESPACE:                 xenia-stg (v1:metadata.namespace)
+      MY_POD_HOST_IP:                    (v1:status.hostIP)
+      K8S_SERVICE_NAME:                 xenia-stg-mongodb-headless
+      MONGODB_INITIAL_PRIMARY_HOST:     xenia-stg-mongodb-0.$(K8S_SERVICE_NAME).$(MY_POD_NAMESPACE).svc.cluster.local
+      MONGODB_REPLICA_SET_NAME:         xenia_rs
+      MONGODB_ADVERTISED_HOSTNAME:      $(MY_POD_NAME).$(K8S_SERVICE_NAME).$(MY_POD_NAMESPACE).svc.cluster.local
+      MONGODB_EXTRA_USERNAMES:          xenia
+      MONGODB_EXTRA_DATABASES:          xenia
+      MONGODB_EXTRA_PASSWORDS:          <set to the key 'mongodb-passwords' in secret 'mongodb'>  Optional: false
+      MONGODB_ROOT_USER:                root
+      MONGODB_ROOT_PASSWORD:            <set to the key 'mongodb-root-password' in secret 'mongodb'>    Optional: false
+      MONGODB_REPLICA_SET_KEY:          <set to the key 'mongodb-replica-set-key' in secret 'mongodb'>  Optional: false
+      ALLOW_EMPTY_PASSWORD:             no
+      MONGODB_SYSTEM_LOG_VERBOSITY:     0
+      MONGODB_DISABLE_SYSTEM_LOG:       no
+      MONGODB_DISABLE_JAVASCRIPT:       no
+      MONGODB_ENABLE_JOURNAL:           yes
+      MONGODB_PORT_NUMBER:              27017
+      MONGODB_ENABLE_IPV6:              no
+      MONGODB_ENABLE_DIRECTORY_PER_DB:  yes
+      MONGODB_EXTRA_FLAGS:              --wiredTigerCacheSizeGB=4.5
+    Mounts:
+      /bitnami/mongodb from datadir (rw)
+      /bitnami/scripts from common-scripts (rw)
+      /docker-entrypoint-initdb.d from custom-init-scripts (rw)
+      /scripts/setup.sh from scripts (rw,path="setup.sh")
+      /var/run/secrets/kubernetes.io/serviceaccount from kube-api-access-8chf4 (ro)
+  metrics:
+    Container ID:  containerd://17e26121b4e2ccab5f547ffc6bc2c19c08caf59113cdf6c1084c20329e951d91
+    Image:         775103580568.dkr.ecr.eu-west-1.amazonaws.com/bitnami/mongodb-exporter:0.37.0-debian-11-r15
+    Image ID:      775103580568.dkr.ecr.eu-west-1.amazonaws.com/bitnami/mongodb-exporter@sha256:ad61f2f18cbcd056466c7e9bf4cc2efdb900f73ae2756596655419b40d6fd46e
+    Port:          9216/TCP
+    Host Port:     0/TCP
+    Command:
+      /bin/bash
+      -ec
+    Args:
+      /bin/mongodb_exporter --collect-all --compatible-mode --web.listen-address ":9216" --mongodb.uri "mongodb://$MONGODB_ROOT_USER:$(echo $MONGODB_ROOT_PASSWORD | sed -r "s/@/%40/g;s/:/%3A/g")@localhost:27017/admin?" --discovering-mode --mongodb.collstats-colls=xenia
+      
+    State:          Running
+      Started:      Thu, 14 Nov 2024 16:07:54 +0000
+    Ready:          True
+    Restart Count:  0
+    Liveness:       http-get http://:15020/app-health/metrics/livez delay=15s timeout=10s period=5s #success=1 #failure=3
+    Readiness:      http-get http://:15020/app-health/metrics/readyz delay=5s timeout=10s period=5s #success=1 #failure=3
+    Environment:
+      MONGODB_ROOT_USER:      root
+      MONGODB_ROOT_PASSWORD:  <set to the key 'mongodb-root-password' in secret 'mongodb'>  Optional: false
+    Mounts:
+      /var/run/secrets/kubernetes.io/serviceaccount from kube-api-access-8chf4 (ro)
+Conditions:
+  Type                        Status
+  PodReadyToStartContainers   True 
+  Initialized                 True 
+  Ready                       True 
+  ContainersReady             True 
+  PodScheduled                True 
+Volumes:
+  workload-socket:
+    Type:       EmptyDir (a temporary directory that shares a pod's lifetime)
+    Medium:     
+    SizeLimit:  <unset>
+  credential-socket:
+    Type:       EmptyDir (a temporary directory that shares a pod's lifetime)
+    Medium:     
+    SizeLimit:  <unset>
+  workload-certs:
+    Type:       EmptyDir (a temporary directory that shares a pod's lifetime)
+    Medium:     
+    SizeLimit:  <unset>
+  istio-envoy:
+    Type:       EmptyDir (a temporary directory that shares a pod's lifetime)
+    Medium:     Memory
+    SizeLimit:  <unset>
+  istio-data:
+    Type:       EmptyDir (a temporary directory that shares a pod's lifetime)
+    Medium:     
+    SizeLimit:  <unset>
+  istio-podinfo:
+    Type:  DownwardAPI (a volume populated by information about the pod)
+    Items:
+      metadata.labels -> labels
+      metadata.annotations -> annotations
+  istio-token:
+    Type:                    Projected (a volume that contains injected data from multiple sources)
+    TokenExpirationSeconds:  43200
+  istiod-ca-cert:
+    Type:      ConfigMap (a volume populated by a ConfigMap)
+    Name:      istio-ca-root-cert
+    Optional:  false
+  datadir:
+    Type:       PersistentVolumeClaim (a reference to a PersistentVolumeClaim in the same namespace)
+    ClaimName:  datadir-xenia-stg-mongodb-1
+    ReadOnly:   false
+  common-scripts:
+    Type:      ConfigMap (a volume populated by a ConfigMap)
+    Name:      xenia-stg-mongodb-common-scripts
+    Optional:  false
+  custom-init-scripts:
+    Type:      ConfigMap (a volume populated by a ConfigMap)
+    Name:      xenia-stg-mongodb-init-scripts
+    Optional:  false
+  scripts:
+    Type:      ConfigMap (a volume populated by a ConfigMap)
+    Name:      xenia-stg-mongodb-scripts
+    Optional:  false
+  kube-api-access-8chf4:
+    Type:                    Projected (a volume that contains injected data from multiple sources)
+    TokenExpirationSeconds:  3607
+    ConfigMapName:           kube-root-ca.crt
+    ConfigMapOptional:       <nil>
+    DownwardAPI:             true
+QoS Class:                   Burstable
+Node-Selectors:              app=xenia_stg_db
+Tolerations:                 dedicated=xenia_stg_db:NoSchedule
+                             node.kubernetes.io/not-ready:NoExecute op=Exists for 300s
+                             node.kubernetes.io/unreachable:NoExecute op=Exists for 300s
+Events:                      <none>
+
+
+Name:         xenia-stg-mongodb-2
+Namespace:    xenia-stg
+Priority:     0
+Node:         ip-100-100-17-161.eu-west-1.compute.internal/100.100.17.161
+Start Time:   Thu, 14 Nov 2024 16:07:06 +0000
+Labels:       app.kubernetes.io/component=mongodb
+              app.kubernetes.io/instance=xenia-stg-mongodb
+              app.kubernetes.io/managed-by=Helm
+              app.kubernetes.io/name=mongodb
+              apps.kubernetes.io/pod-index=2
+              controller-revision-hash=xenia-stg-mongodb-77b785c789
+              helm.sh/chart=mongodb-13.10.1
+              security.istio.io/tlsMode=istio
+              service.istio.io/canonical-name=mongodb
+              service.istio.io/canonical-revision=latest
+              statefulset.kubernetes.io/pod-name=xenia-stg-mongodb-2
+Annotations:  istio.io/rev: default
+              kubectl.kubernetes.io/default-container: mongodb
+              kubectl.kubernetes.io/default-logs-container: mongodb
+              prometheus.io/path: /stats/prometheus
+              prometheus.io/port: 15020
+              prometheus.io/scrape: true
+              sidecar.istio.io/status:
+                {"initContainers":["istio-init"],"containers":["istio-proxy"],"volumes":["workload-socket","credential-socket","workload-certs","istio-env...
+              vpc.amazonaws.com/pod-ips: 100.100.22.110
+Status:       Running
+IP:           100.100.22.110
+IPs:
+  IP:           100.100.22.110
+Controlled By:  StatefulSet/xenia-stg-mongodb
+Init Containers:
+  istio-init:
+    Container ID:  containerd://6ac518989a4a617bd7da4ebf146ac346917e7a9c5037fc24bcff10f713615cbb
+    Image:         gcr.io/istio-release/proxyv2:1.22.3
+    Image ID:      gcr.io/istio-release/proxyv2@sha256:36b52aff95b8bbf0a8e65941abb23d4b01fd58678a29adce7a8cd2eb019e937f
+    Port:          <none>
+    Host Port:     <none>
+    Args:
+      istio-iptables
+      -p
+      15001
+      -z
+      15006
+      -u
+      1337
+      -m
+      REDIRECT
+      -i
+      *
+      -x
+      
+      -b
+      *
+      -d
+      15090,15021,15020
+      --log_output_level=default:info
+    State:          Terminated
+      Reason:       Completed
+      Exit Code:    0
+      Started:      Thu, 14 Nov 2024 16:07:07 +0000
+      Finished:     Thu, 14 Nov 2024 16:07:07 +0000
+    Ready:          True
+    Restart Count:  0
+    Limits:
+      cpu:     2
+      memory:  1Gi
+    Requests:
+      cpu:     10m
+      memory:  128Mi
+    Environment:
+      SECRET_GRACE_PERIOD_RATIO:  0.143
+      SECRET_TTL:                 168h
+    Mounts:
+      /var/run/secrets/kubernetes.io/serviceaccount from kube-api-access-8kc76 (ro)
+Containers:
+  istio-proxy:
+    Container ID:  containerd://fdc7f78ad5fe6c3875b973537f2d8832d9d03c92df18b117d8add53ced624ff9
+    Image:         gcr.io/istio-release/proxyv2:1.22.3
+    Image ID:      gcr.io/istio-release/proxyv2@sha256:36b52aff95b8bbf0a8e65941abb23d4b01fd58678a29adce7a8cd2eb019e937f
+    Port:          15090/TCP
+    Host Port:     0/TCP
+    Args:
+      proxy
+      sidecar
+      --domain
+      $(POD_NAMESPACE).svc.cluster.local
+      --proxyLogLevel=warning
+      --proxyComponentLogLevel=misc:error
+      --log_output_level=default:info
+    State:          Running
+      Started:      Thu, 14 Nov 2024 16:07:08 +0000
+    Ready:          True
+    Restart Count:  0
+    Limits:
+      cpu:     2
+      memory:  1Gi
+    Requests:
+      cpu:      10m
+      memory:   128Mi
+    Readiness:  http-get http://:15021/healthz/ready delay=0s timeout=3s period=15s #success=1 #failure=4
+    Startup:    http-get http://:15021/healthz/ready delay=0s timeout=3s period=1s #success=1 #failure=600
+    Environment:
+      PILOT_CERT_PROVIDER:           istiod
+      CA_ADDR:                       istiod.istio-system.svc:15012
+      POD_NAME:                      xenia-stg-mongodb-2 (v1:metadata.name)
+      POD_NAMESPACE:                 xenia-stg (v1:metadata.namespace)
+      INSTANCE_IP:                    (v1:status.podIP)
+      SERVICE_ACCOUNT:                (v1:spec.serviceAccountName)
+      HOST_IP:                        (v1:status.hostIP)
+      ISTIO_CPU_LIMIT:               2 (limits.cpu)
+      PROXY_CONFIG:                  {"proxyMetadata":{"SECRET_GRACE_PERIOD_RATIO":"0.143","SECRET_TTL":"168h"},"gatewayTopology":{},"holdApplicationUntilProxyStarts":true}
+                                     
+      ISTIO_META_POD_PORTS:          [
+                                         {"name":"mongodb","containerPort":27017,"protocol":"TCP"}
+                                         ,{"name":"metrics","containerPort":9216,"protocol":"TCP"}
+                                     ]
+      ISTIO_META_APP_CONTAINERS:     mongodb,metrics
+      GOMEMLIMIT:                    1073741824 (limits.memory)
+      GOMAXPROCS:                    2 (limits.cpu)
+      ISTIO_META_CLUSTER_ID:         Kubernetes
+      ISTIO_META_NODE_NAME:           (v1:spec.nodeName)
+      ISTIO_META_INTERCEPTION_MODE:  REDIRECT
+      ISTIO_META_WORKLOAD_NAME:      xenia-stg-mongodb
+      ISTIO_META_OWNER:              kubernetes://apis/apps/v1/namespaces/xenia-stg/statefulsets/xenia-stg-mongodb
+      ISTIO_META_MESH_ID:            cluster.local
+      TRUST_DOMAIN:                  cluster.local
+      SECRET_GRACE_PERIOD_RATIO:     0.143
+      SECRET_TTL:                    168h
+      ISTIO_KUBE_APP_PROBERS:        {"/app-health/metrics/livez":{"httpGet":{"path":"/","port":9216,"scheme":"HTTP"},"timeoutSeconds":10},"/app-health/metrics/readyz":{"httpGet":{"path":"/","port":9216,"scheme":"HTTP"},"timeoutSeconds":10}}
+    Mounts:
+      /etc/istio/pod from istio-podinfo (rw)
+      /etc/istio/proxy from istio-envoy (rw)
+      /var/lib/istio/data from istio-data (rw)
+      /var/run/secrets/credential-uds from credential-socket (rw)
+      /var/run/secrets/istio from istiod-ca-cert (rw)
+      /var/run/secrets/kubernetes.io/serviceaccount from kube-api-access-8kc76 (ro)
+      /var/run/secrets/tokens from istio-token (rw)
+      /var/run/secrets/workload-spiffe-credentials from workload-certs (rw)
+      /var/run/secrets/workload-spiffe-uds from workload-socket (rw)
+  mongodb:
+    Container ID:  containerd://71ed2951f5af32f9daf5f448d605b1b84b04dac69c2d0abd43b8a9a975d3fee5
+    Image:         775103580568.dkr.ecr.eu-west-1.amazonaws.com/bitnami/mongodb:6.0.12-debian-11-r5
+    Image ID:      775103580568.dkr.ecr.eu-west-1.amazonaws.com/bitnami/mongodb@sha256:13211287744dc6f6e7ced6d68a528063cbc34dd88d3b321b3e6658d7b06c1b7c
+    Port:          27017/TCP
+    Host Port:     0/TCP
+    Command:
+      /scripts/setup.sh
+    State:          Running
+      Started:      Thu, 14 Nov 2024 16:07:10 +0000
+    Ready:          True
+    Restart Count:  0
+    Limits:
+      cpu:     2
+      memory:  6Gi
+    Requests:
+      cpu:      1
+      memory:   2560Mi
+    Liveness:   exec [/bitnami/scripts/ping-mongodb.sh] delay=30s timeout=10s period=60s #success=1 #failure=2
+    Readiness:  exec [/bitnami/scripts/readiness-probe.sh] delay=5s timeout=5s period=30s #success=1 #failure=2
+    Environment:
+      BITNAMI_DEBUG:                    true
+      MY_POD_NAME:                      xenia-stg-mongodb-2 (v1:metadata.name)
+      MY_POD_NAMESPACE:                 xenia-stg (v1:metadata.namespace)
+      MY_POD_HOST_IP:                    (v1:status.hostIP)
+      K8S_SERVICE_NAME:                 xenia-stg-mongodb-headless
+      MONGODB_INITIAL_PRIMARY_HOST:     xenia-stg-mongodb-0.$(K8S_SERVICE_NAME).$(MY_POD_NAMESPACE).svc.cluster.local
+      MONGODB_REPLICA_SET_NAME:         xenia_rs
+      MONGODB_ADVERTISED_HOSTNAME:      $(MY_POD_NAME).$(K8S_SERVICE_NAME).$(MY_POD_NAMESPACE).svc.cluster.local
+      MONGODB_EXTRA_USERNAMES:          xenia
+      MONGODB_EXTRA_DATABASES:          xenia
+      MONGODB_EXTRA_PASSWORDS:          <set to the key 'mongodb-passwords' in secret 'mongodb'>  Optional: false
+      MONGODB_ROOT_USER:                root
+      MONGODB_ROOT_PASSWORD:            <set to the key 'mongodb-root-password' in secret 'mongodb'>    Optional: false
+      MONGODB_REPLICA_SET_KEY:          <set to the key 'mongodb-replica-set-key' in secret 'mongodb'>  Optional: false
+      ALLOW_EMPTY_PASSWORD:             no
+      MONGODB_SYSTEM_LOG_VERBOSITY:     0
+      MONGODB_DISABLE_SYSTEM_LOG:       no
+      MONGODB_DISABLE_JAVASCRIPT:       no
+      MONGODB_ENABLE_JOURNAL:           yes
+      MONGODB_PORT_NUMBER:              27017
+      MONGODB_ENABLE_IPV6:              no
+      MONGODB_ENABLE_DIRECTORY_PER_DB:  yes
+      MONGODB_EXTRA_FLAGS:              --wiredTigerCacheSizeGB=4.5
+    Mounts:
+      /bitnami/mongodb from datadir (rw)
+      /bitnami/scripts from common-scripts (rw)
+      /docker-entrypoint-initdb.d from custom-init-scripts (rw)
+      /scripts/setup.sh from scripts (rw,path="setup.sh")
+      /var/run/secrets/kubernetes.io/serviceaccount from kube-api-access-8kc76 (ro)
+  metrics:
+    Container ID:  containerd://ae90e0eaa5b3436b0489c5470b9b82fbbb29422670932f717784aae0af266a5c
+    Image:         775103580568.dkr.ecr.eu-west-1.amazonaws.com/bitnami/mongodb-exporter:0.37.0-debian-11-r15
+    Image ID:      775103580568.dkr.ecr.eu-west-1.amazonaws.com/bitnami/mongodb-exporter@sha256:ad61f2f18cbcd056466c7e9bf4cc2efdb900f73ae2756596655419b40d6fd46e
+    Port:          9216/TCP
+    Host Port:     0/TCP
+    Command:
+      /bin/bash
+      -ec
+    Args:
+      /bin/mongodb_exporter --collect-all --compatible-mode --web.listen-address ":9216" --mongodb.uri "mongodb://$MONGODB_ROOT_USER:$(echo $MONGODB_ROOT_PASSWORD | sed -r "s/@/%40/g;s/:/%3A/g")@localhost:27017/admin?" --discovering-mode --mongodb.collstats-colls=xenia
+      
+    State:          Running
+      Started:      Thu, 14 Nov 2024 16:07:10 +0000
+    Ready:          True
+    Restart Count:  0
+    Liveness:       http-get http://:15020/app-health/metrics/livez delay=15s timeout=10s period=5s #success=1 #failure=3
+    Readiness:      http-get http://:15020/app-health/metrics/readyz delay=5s timeout=10s period=5s #success=1 #failure=3
+    Environment:
+      MONGODB_ROOT_USER:      root
+      MONGODB_ROOT_PASSWORD:  <set to the key 'mongodb-root-password' in secret 'mongodb'>  Optional: false
+    Mounts:
+      /var/run/secrets/kubernetes.io/serviceaccount from kube-api-access-8kc76 (ro)
+Conditions:
+  Type                        Status
+  PodReadyToStartContainers   True 
+  Initialized                 True 
+  Ready                       True 
+  ContainersReady             True 
+  PodScheduled                True 
+Volumes:
+  workload-socket:
+    Type:       EmptyDir (a temporary directory that shares a pod's lifetime)
+    Medium:     
+    SizeLimit:  <unset>
+  credential-socket:
+    Type:       EmptyDir (a temporary directory that shares a pod's lifetime)
+    Medium:     
+    SizeLimit:  <unset>
+  workload-certs:
+    Type:       EmptyDir (a temporary directory that shares a pod's lifetime)
+    Medium:     
+    SizeLimit:  <unset>
+  istio-envoy:
+    Type:       EmptyDir (a temporary directory that shares a pod's lifetime)
+    Medium:     Memory
+    SizeLimit:  <unset>
+  istio-data:
+    Type:       EmptyDir (a temporary directory that shares a pod's lifetime)
+    Medium:     
+    SizeLimit:  <unset>
+  istio-podinfo:
+    Type:  DownwardAPI (a volume populated by information about the pod)
+    Items:
+      metadata.labels -> labels
+      metadata.annotations -> annotations
+  istio-token:
+    Type:                    Projected (a volume that contains injected data from multiple sources)
+    TokenExpirationSeconds:  43200
+  istiod-ca-cert:
+    Type:      ConfigMap (a volume populated by a ConfigMap)
+    Name:      istio-ca-root-cert
+    Optional:  false
+  datadir:
+    Type:       PersistentVolumeClaim (a reference to a PersistentVolumeClaim in the same namespace)
+    ClaimName:  datadir-xenia-stg-mongodb-2
+    ReadOnly:   false
+  common-scripts:
+    Type:      ConfigMap (a volume populated by a ConfigMap)
+    Name:      xenia-stg-mongodb-common-scripts
+    Optional:  false
+  custom-init-scripts:
+    Type:      ConfigMap (a volume populated by a ConfigMap)
+    Name:      xenia-stg-mongodb-init-scripts
+    Optional:  false
+  scripts:
+    Type:      ConfigMap (a volume populated by a ConfigMap)
+    Name:      xenia-stg-mongodb-scripts
+    Optional:  false
+  kube-api-access-8kc76:
+    Type:                    Projected (a volume that contains injected data from multiple sources)
+    TokenExpirationSeconds:  3607
+    ConfigMapName:           kube-root-ca.crt
+    ConfigMapOptional:       <nil>
+    DownwardAPI:             true
+QoS Class:                   Burstable
+Node-Selectors:              app=xenia_stg_db
+Tolerations:                 dedicated=xenia_stg_db:NoSchedule
+                             node.kubernetes.io/not-ready:NoExecute op=Exists for 300s
+                             node.kubernetes.io/unreachable:NoExecute op=Exists for 300s
+Events:                      <none>

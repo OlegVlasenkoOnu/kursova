@@ -1,0 +1,248 @@
+kubectl describe pod xenia-pod -n xenia-stg
+Name:         xenia-56b6dcb558-6hdql
+Namespace:    xenia-stg
+Priority:     0
+Node:         ip-100-100-31-113.eu-west-1.compute.internal/100.100.31.113
+Start Time:   Thu, 23 Jan 2025 15:42:53 +0000
+Labels:       app=xenia
+              pod-template-hash=56b6dcb558
+              security.istio.io/tlsMode=istio
+              service.istio.io/canonical-name=xenia
+              service.istio.io/canonical-revision=latest
+Annotations:  checksum/config: 62ad70c3587e4579b9ee8a03186f389ccd06fceba5b68f75fc67a924b075895b
+              config_sha256sum: 8ab9b
+              istio.io/rev: default
+              kubectl.kubernetes.io/default-container: xenia
+              kubectl.kubernetes.io/default-logs-container: xenia
+              kubectl.kubernetes.io/restartedAt: 2024-12-11T14:40:21Z
+              prometheus.io/path: /stats/prometheus
+              prometheus.io/port: 15020
+              prometheus.io/scrape: true
+              secrets_sha256sum: 7896a
+              sidecar.istio.io/status:
+                {"initContainers":["istio-init"],"containers":["istio-proxy"],"volumes":["workload-socket","credential-socket","workload-certs","istio-env...
+              vpc.amazonaws.com/pod-ips: 100.100.22.196
+Status:       Running
+IP:           100.100.22.196
+IPs:
+  IP:           100.100.22.196
+Controlled By:  ReplicaSet/xenia-56b6dcb558
+Init Containers:
+  istio-init:
+    Container ID:  containerd://2351cee6535494b8bf3b04f14361c45afeab18144395579a8c4bc91d359e2a24
+    Image:         gcr.io/istio-release/proxyv2:1.22.3
+    Image ID:      gcr.io/istio-release/proxyv2@sha256:36b52aff95b8bbf0a8e65941abb23d4b01fd58678a29adce7a8cd2eb019e937f
+    Port:          <none>
+    Host Port:     <none>
+    Args:
+      istio-iptables
+      -p
+      15001
+      -z
+      15006
+      -u
+      1337
+      -m
+      REDIRECT
+      -i
+      *
+      -x
+
+      -b
+      *
+      -d
+      15090,15021,15020
+      --log_output_level=default:info
+    State:          Terminated
+      Reason:       Completed
+      Exit Code:    0
+      Started:      Thu, 23 Jan 2025 15:42:53 +0000
+      Finished:     Thu, 23 Jan 2025 15:42:53 +0000
+    Ready:          True
+    Restart Count:  0
+    Limits:
+      cpu:     2
+      memory:  1Gi
+    Requests:
+      cpu:     10m
+      memory:  128Mi
+    Environment:
+      SECRET_GRACE_PERIOD_RATIO:  0.143
+      SECRET_TTL:                 168h
+    Mounts:
+      /var/run/secrets/kubernetes.io/serviceaccount from kube-api-access-zwx25 (ro)
+Containers:
+  istio-proxy:
+    Container ID:  containerd://513bef89bcea29160f20b8f8270443d73a5ed6fe909ce180f0131e6ad177b2c8
+    Image:         gcr.io/istio-release/proxyv2:1.22.3
+    Image ID:      gcr.io/istio-release/proxyv2@sha256:36b52aff95b8bbf0a8e65941abb23d4b01fd58678a29adce7a8cd2eb019e937f
+    Port:          15090/TCP
+    Host Port:     0/TCP
+    Args:
+      proxy
+      sidecar
+      --domain
+      $(POD_NAMESPACE).svc.cluster.local
+      --proxyLogLevel=warning
+      --proxyComponentLogLevel=misc:error
+      --log_output_level=default:info
+    State:          Running
+      Started:      Thu, 23 Jan 2025 15:42:54 +0000
+    Ready:          True
+    Restart Count:  0
+    Limits:
+      cpu:     2
+      memory:  1Gi
+    Requests:
+      cpu:      10m
+      memory:   128Mi
+    Readiness:  http-get http://:15021/healthz/ready delay=0s timeout=3s period=15s #success=1 #failure=4
+    Startup:    http-get http://:15021/healthz/ready delay=0s timeout=3s period=1s #success=1 #failure=600
+    Environment:
+      PILOT_CERT_PROVIDER:           istiod
+      CA_ADDR:                       istiod.istio-system.svc:15012
+      POD_NAME:                      xenia-56b6dcb558-6hdql (v1:metadata.name)
+      POD_NAMESPACE:                 xenia-stg (v1:metadata.namespace)
+      INSTANCE_IP:                    (v1:status.podIP)
+      SERVICE_ACCOUNT:                (v1:spec.serviceAccountName)
+      HOST_IP:                        (v1:status.hostIP)
+      ISTIO_CPU_LIMIT:               2 (limits.cpu)
+      PROXY_CONFIG:                  {"proxyMetadata":{"SECRET_GRACE_PERIOD_RATIO":"0.143","SECRET_TTL":"168h"},"gatewayTopology":{},"holdApplicationUntilProxyStarts":true}
+
+      ISTIO_META_POD_PORTS:          [
+                                         {"name":"api","containerPort":8080,"protocol":"TCP"}
+                                         ,{"name":"metrics","containerPort":8085,"protocol":"TCP"}
+                                     ]
+      ISTIO_META_APP_CONTAINERS:     xenia
+      GOMEMLIMIT:                    1073741824 (limits.memory)
+      GOMAXPROCS:                    2 (limits.cpu)
+      ISTIO_META_CLUSTER_ID:         Kubernetes
+      ISTIO_META_NODE_NAME:           (v1:spec.nodeName)
+      ISTIO_META_INTERCEPTION_MODE:  REDIRECT
+      ISTIO_META_WORKLOAD_NAME:      xenia
+      ISTIO_META_OWNER:              kubernetes://apis/apps/v1/namespaces/xenia-stg/deployments/xenia
+      ISTIO_META_MESH_ID:            cluster.local
+      TRUST_DOMAIN:                  cluster.local
+      SECRET_GRACE_PERIOD_RATIO:     0.143
+      SECRET_TTL:                    168h
+      ISTIO_KUBE_APP_PROBERS:        {"/app-health/xenia/livez":{"tcpSocket":{"port":8080},"timeoutSeconds":1},"/app-health/xenia/readyz":{"tcpSocket":{"port":8080},"timeoutSeconds":1}}
+    Mounts:
+      /etc/istio/pod from istio-podinfo (rw)
+      /etc/istio/proxy from istio-envoy (rw)
+      /var/lib/istio/data from istio-data (rw)
+      /var/run/secrets/credential-uds from credential-socket (rw)
+      /var/run/secrets/istio from istiod-ca-cert (rw)
+      /var/run/secrets/kubernetes.io/serviceaccount from kube-api-access-zwx25 (ro)
+      /var/run/secrets/tokens from istio-token (rw)
+      /var/run/secrets/workload-spiffe-credentials from workload-certs (rw)
+      /var/run/secrets/workload-spiffe-uds from workload-socket (rw)
+  xenia:
+    Container ID:   containerd://f14a43e150f98b365d3fe20bcde2643e4947daae1949c90d7b2beb531c352a9f
+    Image:          775103580568.dkr.ecr.eu-west-1.amazonaws.com/xenia/xenia:25.1.2_b1-24.3.0-105
+    Image ID:       775103580568.dkr.ecr.eu-west-1.amazonaws.com/xenia/xenia@sha256:f9dc97e542740120a4d2d055e4fcc7df5aee0309d7f736235bc91bdaa5b07d1a
+    Ports:          8080/TCP, 8085/TCP
+    Host Ports:     0/TCP, 0/TCP
+    State:          Running
+      Started:      Thu, 23 Jan 2025 15:42:56 +0000
+    Ready:          True
+    Restart Count:  0
+    Limits:
+      cpu:     2
+      memory:  2Gi
+    Requests:
+      cpu:      2
+      memory:   2Gi
+    Liveness:   http-get http://:15020/app-health/xenia/livez delay=10s timeout=1s period=10s #success=1 #failure=3
+    Readiness:  http-get http://:15020/app-health/xenia/readyz delay=30s timeout=1s period=5s #success=1 #failure=3
+    Environment:
+      CAS_SERVICE_URL:                   https://xenia-stg.pgil.gpas.io/engagement
+      CAS_URL:                           https://onelogin.techonlinecorp.com
+      DISABLE_METRICS_COLLECTION:        false
+      DISABLE_OUTBOUND_REQUEST_LOGGING:  true
+      ENABLE_DETAILED_TIMEZONE_LOGS:     true
+      LOGGER_MODE:                       true
+      LOG_LEVEL:                         info
+      METRICS_PORT:                      8085
+      MONGO_ARGS:                        ?authSource=admin&replicaSet=xenia_rs
+      MONGO_DB_NAME:                     xenia
+      NODE_ENV:                          staging
+      NODE_OPTIONS:                      --max-old-space-size=1536
+      OTLP_EXPORTER:                     http://global-collector-headless.observability.svc:4318/v1/
+      PORT:                              8080
+      RATE_LIMIT:                        2
+      RATE_TIME_SECONDS:                 1
+      REPORT_EXPIRATION_MINUTES:         10
+      SESSION_EXPIRATION_MINUTES:        60
+      SESSION_ID:                        xenia-stg
+      TELEMETRY_METRICS_ENDPOINT:        /nodejs_metrics
+      TELEMETRY_TARGET_NAMESPACE:        xenia-stg
+      TELEMETRY_TRACES_DEBUG:            false
+      TELEMETRY_TRACES_ENABLE:           true
+      API_SECRET:                        <set to the key 'API_SECRET' in secret 'xenia'>      Optional: false
+      CAS_APIKEY:                        <set to the key 'CAS_APIKEY' in secret 'xenia'>      Optional: false
+      MONGO_URI:                         <set to the key 'MONGO_URI' in secret 'xenia'>       Optional: false
+      SESSION_SECRET:                    <set to the key 'SESSION_SECRET' in secret 'xenia'>  Optional: false
+    Mounts:
+      /app/shared/enum/sites.js from xenia-config (rw,path="sites.js")
+      /app/sslcert from sslcert (ro)
+      /var/run/secrets/kubernetes.io/serviceaccount from kube-api-access-zwx25 (ro)
+Conditions:
+  Type                        Status
+  PodReadyToStartContainers   True
+  Initialized                 True
+  Ready                       True
+  ContainersReady             True
+  PodScheduled                True
+Volumes:
+  workload-socket:
+    Type:       EmptyDir (a temporary directory that shares a pod's lifetime)
+    Medium:
+    SizeLimit:  <unset>
+  credential-socket:
+    Type:       EmptyDir (a temporary directory that shares a pod's lifetime)
+    Medium:
+    SizeLimit:  <unset>
+  workload-certs:
+    Type:       EmptyDir (a temporary directory that shares a pod's lifetime)
+    Medium:
+    SizeLimit:  <unset>
+  istio-envoy:
+    Type:       EmptyDir (a temporary directory that shares a pod's lifetime)
+    Medium:     Memory
+    SizeLimit:  <unset>
+  istio-data:
+    Type:       EmptyDir (a temporary directory that shares a pod's lifetime)
+    Medium:
+    SizeLimit:  <unset>
+  istio-podinfo:
+    Type:  DownwardAPI (a volume populated by information about the pod)
+    Items:
+      metadata.labels -> labels
+      metadata.annotations -> annotations
+  istio-token:
+    Type:                    Projected (a volume that contains injected data from multiple sources)
+    TokenExpirationSeconds:  43200
+  istiod-ca-cert:
+    Type:      ConfigMap (a volume populated by a ConfigMap)
+    Name:      istio-ca-root-cert
+    Optional:  false
+  sslcert:
+    Type:        Secret (a volume populated by a Secret)
+    SecretName:  xenia
+    Optional:    false
+  xenia-config:
+    Type:      ConfigMap (a volume populated by a ConfigMap)
+    Name:      xenia
+    Optional:  false
+  kube-api-access-zwx25:
+    Type:                    Projected (a volume that contains injected data from multiple sources)
+    TokenExpirationSeconds:  3607
+    ConfigMapName:           kube-root-ca.crt
+    ConfigMapOptional:       <nil>
+    DownwardAPI:             true
+QoS Class:                   Burstable
+Node-Selectors:              app=xenia_large
+Tolerations:                 dedicated=xenia_large:NoSchedule
+                             node.kubernetes.io/not-ready:NoExecute op=Exists for 300s
+                             node.kubernetes.io/unreachable:NoExecute op=Exists for 300s
+Events:                      <none>

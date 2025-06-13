@@ -1,0 +1,96 @@
+kubectl describe node xenia-node
+Name:               ip-100-100-31-113.eu-west-1.compute.internal
+Roles:              <none>
+Labels:             app=xenia_large
+                    aws-node-termination-handler/managed=true
+                    beta.kubernetes.io/arch=amd64
+                    beta.kubernetes.io/instance-type=c5a.xlarge
+                    beta.kubernetes.io/os=linux
+                    eks.amazonaws.com/capacityType=SPOT
+                    eks.amazonaws.com/nodegroup=awspgdev-xenia_spot_large20241122094524184100000002
+                    eks.amazonaws.com/nodegroup-image=ami-02e2de73058d55743
+                    eks.amazonaws.com/sourceLaunchTemplateId=lt-09c468e4d8e0c1300
+                    eks.amazonaws.com/sourceLaunchTemplateVersion=1
+                    failure-domain.beta.kubernetes.io/region=eu-west-1
+                    failure-domain.beta.kubernetes.io/zone=eu-west-1a
+                    k8s.io/cloud-provider-aws=43143ff6646c453b739da35142adf825
+                    kubernetes.io/arch=amd64
+                    kubernetes.io/hostname=ip-100-100-31-113.eu-west-1.compute.internal
+                    kubernetes.io/os=linux
+                    node.kubernetes.io/instance-type=c5a.xlarge
+                    topology.ebs.csi.aws.com/zone=eu-west-1a
+                    topology.kubernetes.io/region=eu-west-1
+                    topology.kubernetes.io/zone=eu-west-1a
+Annotations:        alpha.kubernetes.io/provided-node-ip: 100.100.31.113
+                    csi.volume.kubernetes.io/nodeid: {"csi.tigera.io":"ip-100-100-31-113.eu-west-1.compute.internal","ebs.csi.aws.com":"i-01a0e440b65a2910a"}
+                    node.alpha.kubernetes.io/ttl: 0
+                    volumes.kubernetes.io/controller-managed-attach-detach: true
+CreationTimestamp:  Thu, 23 Jan 2025 14:34:12 +0000
+Taints:             dedicated=xenia_large:NoSchedule
+Unschedulable:      false
+Lease:
+  HolderIdentity:  ip-100-100-31-113.eu-west-1.compute.internal
+  AcquireTime:     <unset>
+  RenewTime:       Mon, 27 Jan 2025 13:18:30 +0000
+Conditions:
+  Type             Status  LastHeartbeatTime                 LastTransitionTime                Reason                       Message
+  ----             ------  -----------------                 ------------------                ------                       -------
+  MemoryPressure   False   Mon, 27 Jan 2025 13:17:11 +0000   Thu, 23 Jan 2025 14:34:11 +0000   KubeletHasSufficientMemory   kubelet has sufficient memory available
+  DiskPressure     False   Mon, 27 Jan 2025 13:17:11 +0000   Thu, 23 Jan 2025 14:34:11 +0000   KubeletHasNoDiskPressure     kubelet has no disk pressure
+  PIDPressure      False   Mon, 27 Jan 2025 13:17:11 +0000   Thu, 23 Jan 2025 14:34:11 +0000   KubeletHasSufficientPID      kubelet has sufficient PID available
+  Ready            True    Mon, 27 Jan 2025 13:17:11 +0000   Thu, 23 Jan 2025 14:34:25 +0000   KubeletReady                 kubelet is posting ready status
+Addresses:
+  InternalIP:   100.100.31.113
+  InternalDNS:  ip-100-100-31-113.eu-west-1.compute.internal
+  Hostname:     ip-100-100-31-113.eu-west-1.compute.internal
+Capacity:
+  cpu:                4
+  ephemeral-storage:  31444972Ki
+  hugepages-1Gi:      0
+  hugepages-2Mi:      0
+  memory:             8022480Ki
+  pods:               58
+Allocatable:
+  cpu:                3920m
+  ephemeral-storage:  27905944324
+  hugepages-1Gi:      0
+  hugepages-2Mi:      0
+  memory:             7005648Ki
+  pods:               58
+System Info:
+  Machine ID:                 ec2036f8000e05e9cf1b9b82f434e7af
+  System UUID:                ec2036f8-000e-05e9-cf1b-9b82f434e7af
+  Boot ID:                    3ac77b60-5998-4afe-a9df-6a19181bb84d
+  Kernel Version:             5.10.210-201.852.amzn2.x86_64
+  OS Image:                   Amazon Linux 2
+  Operating System:           linux
+  Architecture:               amd64
+  Container Runtime Version:  containerd://1.7.11
+  Kubelet Version:            v1.29.0-eks-5e0fdde
+  Kube-Proxy Version:         v1.29.0-eks-5e0fdde
+ProviderID:                   aws:///eu-west-1a/i-01a0e440b65a2910a
+Non-terminated Pods:          (12 in total)
+  Namespace                   Name                                         CPU Requests  CPU Limits   Memory Requests  Memory Limits  Age
+  ---------                   ----                                         ------------  ----------   ---------------  -------------  ---
+  calico-system               calico-node-brn8p                            0 (0%)        0 (0%)       0 (0%)           0 (0%)         3d22h
+  calico-system               csi-node-driver-878fn                        0 (0%)        0 (0%)       0 (0%)           0 (0%)         3d22h
+  falcon-system               falcon-sensor-k5xzq                          0 (0%)        0 (0%)       0 (0%)           0 (0%)         3d22h
+  kube-system                 aws-node-cj5dj                               25m (0%)      0 (0%)       0 (0%)           0 (0%)         3d22h
+  kube-system                 aws-node-termination-handler-g98fx           0 (0%)        0 (0%)       0 (0%)           0 (0%)         3d22h
+  kube-system                 ebs-csi-node-hsd8l                           30m (0%)      0 (0%)       120Mi (1%)       768Mi (11%)    3d22h
+  kube-system                 kube-proxy-ftgcs                             100m (2%)     0 (0%)       0 (0%)           0 (0%)         3d22h
+  logging                     fluent-bit-kszcv                             20m (0%)      2100m (53%)  128Mi (1%)       1Gi (14%)      3d22h
+  monitoring                  monitoring-prometheus-node-exporter-g9jch    0 (0%)        0 (0%)       0 (0%)           0 (0%)         3d22h
+  tigera-compliance           compliance-benchmarker-x8s8c                 0 (0%)        0 (0%)       0 (0%)           0 (0%)         3d22h
+  tigera-fluentd              fluentd-node-jpch7                           0 (0%)        0 (0%)       0 (0%)           0 (0%)         3d22h
+  xenia-stg                   xenia-56b6dcb558-6hdql                       2010m (51%)   4 (102%)     2176Mi (31%)     3Gi (44%)      3d21h
+Allocated resources:
+  (Total limits may be over 100 percent, i.e., overcommitted.)
+  Resource           Requests      Limits
+  --------           --------      ------
+  cpu                2185m (55%)   6100m (155%)
+  memory             2424Mi (35%)  4864Mi (71%)
+  ephemeral-storage  0 (0%)        0 (0%)
+  hugepages-1Gi      0 (0%)        0 (0%)
+  hugepages-2Mi      0 (0%)        0 (0%)
+Events:              <none>

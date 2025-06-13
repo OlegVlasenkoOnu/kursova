@@ -1,0 +1,398 @@
+
+=== Обробка файлу: 01_namespace_sample.txt ===
+
+--- Парсинг: kubectl get pods -n xenia-stg -o wide ---
+Знайдено або оновлено поди:
+  - xenia-stg/config-manager-28961525-9ncbb (Статус: Completed, Вузол: ip-100-100-24-129.eu-west-1.compute.internal, IP: 100.100.18.111)
+  - xenia-stg/config-manager-28965845-dkmjz (Статус: Completed, Вузол: ip-100-100-24-129.eu-west-1.compute.internal, IP: 100.100.31.170)
+  - xenia-stg/config-manager-tecrp-g28p9 (Статус: Completed, Вузол: ip-100-100-46-4.eu-west-1.compute.internal, IP: 100.100.47.38)
+  - xenia-stg/mongodb-backup-28964280-9lfqk (Статус: Completed, Вузол: ip-100-100-24-129.eu-west-1.compute.internal, IP: 100.100.31.153)
+  - xenia-stg/mongodb-backup-28965720-p75fx (Статус: Completed, Вузол: ip-100-100-24-129.eu-west-1.compute.internal, IP: 100.100.26.233)
+  - xenia-stg/xenia-56b6dcb558-6hdql (Статус: Running, Вузол: ip-100-100-31-113.eu-west-1.compute.internal, IP: 100.100.22.196)
+  - xenia-stg/xenia-56b6dcb558-sr4jr (Статус: Running, Вузол: ip-100-100-35-194.eu-west-1.compute.internal, IP: 100.100.38.210)
+  - xenia-stg/xenia-stg-mongodb-0 (Статус: Running, Вузол: ip-100-100-41-106.eu-west-1.compute.internal, IP: 100.100.32.141)
+  - xenia-stg/xenia-stg-mongodb-1 (Статус: Running, Вузол: ip-100-100-58-211.eu-west-1.compute.internal, IP: 100.100.62.149)
+  - xenia-stg/xenia-stg-mongodb-2 (Статус: Running, Вузол: ip-100-100-17-161.eu-west-1.compute.internal, IP: 100.100.22.110)
+
+--- Аналіз та Рекомендації (Після get_pods (01_namespace_sample.txt)) ---
+
+Аналіз по вузлах:
+
+- Вузол: ip-100-100-17-161.eu-west-1.compute.internal
+  ПОМИЛКА: Відсутні або нульові дані allocatable (CPU: 0m, Mem: 0 MiB, Pods: 0.0). Повний аналіз неможливий.
+
+- Вузол: ip-100-100-24-129.eu-west-1.compute.internal
+  ПОМИЛКА: Відсутні або нульові дані allocatable (CPU: 0m, Mem: 0 MiB, Pods: 0.0). Повний аналіз неможливий.
+
+- Вузол: ip-100-100-31-113.eu-west-1.compute.internal
+  ПОМИЛКА: Відсутні або нульові дані allocatable (CPU: 0m, Mem: 0 MiB, Pods: 0.0). Повний аналіз неможливий.
+
+- Вузол: ip-100-100-35-194.eu-west-1.compute.internal
+  ПОМИЛКА: Відсутні або нульові дані allocatable (CPU: 0m, Mem: 0 MiB, Pods: 0.0). Повний аналіз неможливий.
+
+- Вузол: ip-100-100-41-106.eu-west-1.compute.internal
+  ПОМИЛКА: Відсутні або нульові дані allocatable (CPU: 0m, Mem: 0 MiB, Pods: 0.0). Повний аналіз неможливий.
+
+- Вузол: ip-100-100-46-4.eu-west-1.compute.internal
+  ПОМИЛКА: Відсутні або нульові дані allocatable (CPU: 0m, Mem: 0 MiB, Pods: 0.0). Повний аналіз неможливий.
+
+- Вузол: ip-100-100-58-211.eu-west-1.compute.internal
+  ПОМИЛКА: Відсутні або нульові дані allocatable (CPU: 0m, Mem: 0 MiB, Pods: 0.0). Повний аналіз неможливий.
+
+Загальний аналіз кластера:
+Недостатньо даних про доступні ресурси (allocatable) для повного загального аналізу кластера.
+
+=== Обробка файлу: 02_describe_node.txt ===
+
+--- Парсинг: kubectl describe node ---
+Обробка вузла: ip-100-100-31-113.eu-west-1.compute.internal
+Інформація про вузол:
+  - Ім'я: ip-100-100-31-113.eu-west-1.compute.internal
+  - Ємність (Capacity): CPU=4.00 cores, Пам'ять=7.65 GiB, Поди=58
+  - Доступно (Allocatable): CPU=3.92 cores, Пам'ять=6.68 GiB, Поди=58
+  - Знайдено Non-terminated Pods: 12 шт.
+  - Виділено (з секції Allocated resources): Requests(CPU=2.19 cores, Mem=2.37 GiB, Pods=0), Limits(CPU=0m, Mem=0 MiB)
+
+--- Аналіз та Рекомендації (Після describe_node (02_describe_node.txt)) ---
+
+Аналіз по вузлах:
+
+- Вузол: ip-100-100-17-161.eu-west-1.compute.internal
+  ПОМИЛКА: Відсутні або нульові дані allocatable (CPU: 0m, Mem: 0 MiB, Pods: 0.0). Повний аналіз неможливий.
+
+- Вузол: ip-100-100-24-129.eu-west-1.compute.internal
+  ПОМИЛКА: Відсутні або нульові дані allocatable (CPU: 0m, Mem: 0 MiB, Pods: 0.0). Повний аналіз неможливий.
+
+- Вузол: ip-100-100-31-113.eu-west-1.compute.internal
+  INFO:
+    - Активні поди (12): calico-system/calico-node-brn8p (Running), calico-system/csi-node-driver-878fn (Running), falcon-system/falcon-sensor-k5xzq (Running), kube-system/aws-node-cj5dj (Running), kube-system/aws-node-termination-handler-g98fx (Running), kube-system/ebs-csi-node-hsd8l (Running), kube-system/kube-proxy-ftgcs (Running), logging/fluent-bit-kszcv (Running), monitoring/monitoring-prometheus-node-exporter-g9jch (Running), tigera-compliance/compliance-benchmarker-x8s8c (Running), tigera-fluentd/fluentd-node-jpch7 (Running), xenia-stg/xenia-56b6dcb558-6hdql (Running)
+    - Дані з 'describe node' (Allocated): ReqCPU=2.19 cores, LimCPU=0m, ReqMem=2.37 GiB, LimMem=0 MiB, Pods=0
+    - Доступно (Allocatable): CPU=3.92 cores, Пам'ять=6.68 GiB, Поди=58
+    - Поди з неймспейсу 'xenia-stg': xenia-56b6dcb558-6hdql (Running)
+    - Сумарні Запити АКТИВНИХ (Requests): CPU=2.19 cores (55.7%), Пам'ять=1.96 GiB (29.3%), Поди=12 (20.7%)
+    - Сумарні Ліміти АКТИВНИХ (Limits):   CPU=0m (0.0%), Пам'ять=0 MiB (0.0%)
+  WARNINGS:
+    - Поди БЕЗ ЗАПИТІВ (requests): calico-system/calico-node-brn8p, calico-system/csi-node-driver-878fn, falcon-system/falcon-sensor-k5xzq, kube-system/aws-node-termination-handler-g98fx, monitoring/monitoring-prometheus-node-exporter-g9jch, tigera-compliance/compliance-benchmarker-x8s8c, tigera-fluentd/fluentd-node-jpch7. Це негативно впливає на планування та стабільність.
+    - Поди БЕЗ ЛІМІТІВ (limits): calico-system/calico-node-brn8p, calico-system/csi-node-driver-878fn, falcon-system/falcon-sensor-k5xzq, kube-system/aws-node-cj5dj, kube-system/aws-node-termination-handler-g98fx, kube-system/ebs-csi-node-hsd8l, kube-system/kube-proxy-ftgcs, logging/fluent-bit-kszcv, monitoring/monitoring-prometheus-node-exporter-g9jch, tigera-compliance/compliance-benchmarker-x8s8c, tigera-fluentd/fluentd-node-jpch7, xenia-stg/xenia-56b6dcb558-6hdql. Це може призвести до неконтрольованого споживання ресурсів.
+    - Поди з високими запитами (> 50.0%): xenia-stg/xenia-56b6dcb558-6hdql (CPU: 2.01 cores - 51.3%). Перегляньте їх конфігурацію.
+
+- Вузол: ip-100-100-35-194.eu-west-1.compute.internal
+  ПОМИЛКА: Відсутні або нульові дані allocatable (CPU: 0m, Mem: 0 MiB, Pods: 0.0). Повний аналіз неможливий.
+
+- Вузол: ip-100-100-41-106.eu-west-1.compute.internal
+  ПОМИЛКА: Відсутні або нульові дані allocatable (CPU: 0m, Mem: 0 MiB, Pods: 0.0). Повний аналіз неможливий.
+
+- Вузол: ip-100-100-46-4.eu-west-1.compute.internal
+  ПОМИЛКА: Відсутні або нульові дані allocatable (CPU: 0m, Mem: 0 MiB, Pods: 0.0). Повний аналіз неможливий.
+
+- Вузол: ip-100-100-58-211.eu-west-1.compute.internal
+  ПОМИЛКА: Відсутні або нульові дані allocatable (CPU: 0m, Mem: 0 MiB, Pods: 0.0). Повний аналіз неможливий.
+
+Загальний аналіз кластера:
+- Загально доступно (Allocatable): CPU=3.92 cores, Пам'ять=6.68 GiB, Поди=58
+- Загальні Запити (Requests): CPU=2.19 cores (55.7%), Пам'ять=1.96 GiB (29.3%), Поди=12 (20.7%)
+- Загальні Ліміти (Limits):   CPU=0m (0.0%), Пам'ять=0 MiB (0.0%)
+
+Загальні Рекомендації та Спостереження по Кластеру:
+  - УВАГА (Поди з високими запитами >50.0%): Вузли: ip-100-100-31-113.eu-west-1.compute.internal. Перегляньте конфігурацію цих подів.
+  - УВАГА (Поди без запитів): Вузли: ip-100-100-31-113.eu-west-1.compute.internal. Встановіть запити для стабільності.
+  - УВАГА (Поди без лімітів): Вузли: ip-100-100-31-113.eu-west-1.compute.internal. Встановіть ліміти для запобігання неконтрольованому споживанню.
+  - Примітка: Оптимальне використання вузлів передбачає їх достатнє завантаження без надмірного overcommit'у ресурсів, особливо пам'яті.
+
+=== Обробка файлу: 03_describe_node_another.txt ===
+
+--- Парсинг: kubectl describe node ---
+Обробка вузла: ip-100-100-41-106.eu-west-1.compute.internal
+Інформація про вузол:
+  - Ім'я: ip-100-100-41-106.eu-west-1.compute.internal
+  - Ємність (Capacity): CPU=2.00 cores, Пам'ять=7.61 GiB, Поди=29
+  - Доступно (Allocatable): CPU=1.93 cores, Пам'ять=6.95 GiB, Поди=29
+  - Знайдено Non-terminated Pods: 12 шт.
+  - Виділено (з секції Allocated resources): Requests(CPU=1.19 cores, Mem=2.87 GiB, Pods=0), Limits(CPU=0m, Mem=0 MiB)
+
+--- Аналіз та Рекомендації (Після describe_node (03_describe_node_another.txt)) ---
+
+Аналіз по вузлах:
+
+- Вузол: ip-100-100-17-161.eu-west-1.compute.internal
+  ПОМИЛКА: Відсутні або нульові дані allocatable (CPU: 0m, Mem: 0 MiB, Pods: 0.0). Повний аналіз неможливий.
+
+- Вузол: ip-100-100-24-129.eu-west-1.compute.internal
+  ПОМИЛКА: Відсутні або нульові дані allocatable (CPU: 0m, Mem: 0 MiB, Pods: 0.0). Повний аналіз неможливий.
+
+- Вузол: ip-100-100-31-113.eu-west-1.compute.internal
+  INFO:
+    - Активні поди (12): calico-system/calico-node-brn8p (Running), calico-system/csi-node-driver-878fn (Running), falcon-system/falcon-sensor-k5xzq (Running), kube-system/aws-node-cj5dj (Running), kube-system/aws-node-termination-handler-g98fx (Running), kube-system/ebs-csi-node-hsd8l (Running), kube-system/kube-proxy-ftgcs (Running), logging/fluent-bit-kszcv (Running), monitoring/monitoring-prometheus-node-exporter-g9jch (Running), tigera-compliance/compliance-benchmarker-x8s8c (Running), tigera-fluentd/fluentd-node-jpch7 (Running), xenia-stg/xenia-56b6dcb558-6hdql (Running)
+    - Дані з 'describe node' (Allocated): ReqCPU=2.19 cores, LimCPU=0m, ReqMem=2.37 GiB, LimMem=0 MiB, Pods=0
+    - Доступно (Allocatable): CPU=3.92 cores, Пам'ять=6.68 GiB, Поди=58
+    - Поди з неймспейсу 'xenia-stg': xenia-56b6dcb558-6hdql (Running)
+    - Сумарні Запити АКТИВНИХ (Requests): CPU=2.19 cores (55.7%), Пам'ять=1.96 GiB (29.3%), Поди=12 (20.7%)
+    - Сумарні Ліміти АКТИВНИХ (Limits):   CPU=0m (0.0%), Пам'ять=0 MiB (0.0%)
+  WARNINGS:
+    - Поди БЕЗ ЗАПИТІВ (requests): calico-system/calico-node-brn8p, calico-system/csi-node-driver-878fn, falcon-system/falcon-sensor-k5xzq, kube-system/aws-node-termination-handler-g98fx, monitoring/monitoring-prometheus-node-exporter-g9jch, tigera-compliance/compliance-benchmarker-x8s8c, tigera-fluentd/fluentd-node-jpch7. Це негативно впливає на планування та стабільність.
+    - Поди БЕЗ ЛІМІТІВ (limits): calico-system/calico-node-brn8p, calico-system/csi-node-driver-878fn, falcon-system/falcon-sensor-k5xzq, kube-system/aws-node-cj5dj, kube-system/aws-node-termination-handler-g98fx, kube-system/ebs-csi-node-hsd8l, kube-system/kube-proxy-ftgcs, logging/fluent-bit-kszcv, monitoring/monitoring-prometheus-node-exporter-g9jch, tigera-compliance/compliance-benchmarker-x8s8c, tigera-fluentd/fluentd-node-jpch7, xenia-stg/xenia-56b6dcb558-6hdql. Це може призвести до неконтрольованого споживання ресурсів.
+    - Поди з високими запитами (> 50.0%): xenia-stg/xenia-56b6dcb558-6hdql (CPU: 2.01 cores - 51.3%). Перегляньте їх конфігурацію.
+
+- Вузол: ip-100-100-35-194.eu-west-1.compute.internal
+  ПОМИЛКА: Відсутні або нульові дані allocatable (CPU: 0m, Mem: 0 MiB, Pods: 0.0). Повний аналіз неможливий.
+
+- Вузол: ip-100-100-41-106.eu-west-1.compute.internal
+  INFO:
+    - Активні поди (12): calico-system/calico-node-prf59 (Running), calico-system/csi-node-driver-bnw7b (Running), falcon-system/falcon-sensor-qq8rj (Running), kube-system/aws-node-fv645 (Running), kube-system/aws-node-termination-handler-gr6wc (Running), kube-system/ebs-csi-node-lrnkk (Running), kube-system/kube-proxy-8zpf9 (Running), logging/fluent-bit-889fl (Running), monitoring/monitoring-prometheus-node-exporter-jpvm6 (Running), tigera-compliance/compliance-benchmarker-wn9pz (Running), tigera-fluentd/fluentd-node-xp94t (Running), xenia-stg/xenia-stg-mongodb-0 (Running)
+    - Дані з 'describe node' (Allocated): ReqCPU=1.19 cores, LimCPU=0m, ReqMem=2.87 GiB, LimMem=0 MiB, Pods=0
+    - Доступно (Allocatable): CPU=1.93 cores, Пам'ять=6.95 GiB, Поди=29
+    - Поди з неймспейсу 'xenia-stg': xenia-stg-mongodb-0 (Running)
+    - Потенційні БД: xenia-stg/xenia-stg-mongodb-0
+    - Сумарні Запити АКТИВНИХ (Requests): CPU=1.19 cores (61.4%), Пам'ять=1.96 GiB (28.1%), Поди=12 (41.4%)
+    - Сумарні Ліміти АКТИВНИХ (Limits):   CPU=0m (0.0%), Пам'ять=0 MiB (0.0%)
+  WARNINGS:
+    - Поди БЕЗ ЗАПИТІВ (requests): calico-system/calico-node-prf59, calico-system/csi-node-driver-bnw7b, falcon-system/falcon-sensor-qq8rj, kube-system/aws-node-termination-handler-gr6wc, monitoring/monitoring-prometheus-node-exporter-jpvm6, tigera-compliance/compliance-benchmarker-wn9pz, tigera-fluentd/fluentd-node-xp94t. Це негативно впливає на планування та стабільність.
+    - Поди БЕЗ ЛІМІТІВ (limits): calico-system/calico-node-prf59, calico-system/csi-node-driver-bnw7b, falcon-system/falcon-sensor-qq8rj, kube-system/aws-node-fv645, kube-system/aws-node-termination-handler-gr6wc, kube-system/ebs-csi-node-lrnkk, kube-system/kube-proxy-8zpf9, logging/fluent-bit-889fl, monitoring/monitoring-prometheus-node-exporter-jpvm6, tigera-compliance/compliance-benchmarker-wn9pz, tigera-fluentd/fluentd-node-xp94t, xenia-stg/xenia-stg-mongodb-0. Це може призвести до неконтрольованого споживання ресурсів.
+    - Поди з високими запитами (> 50.0%): xenia-stg/xenia-stg-mongodb-0 (CPU: 1.01 cores - 52.3%). Перегляньте їх конфігурацію.
+
+- Вузол: ip-100-100-46-4.eu-west-1.compute.internal
+  ПОМИЛКА: Відсутні або нульові дані allocatable (CPU: 0m, Mem: 0 MiB, Pods: 0.0). Повний аналіз неможливий.
+
+- Вузол: ip-100-100-58-211.eu-west-1.compute.internal
+  ПОМИЛКА: Відсутні або нульові дані allocatable (CPU: 0m, Mem: 0 MiB, Pods: 0.0). Повний аналіз неможливий.
+
+Загальний аналіз кластера:
+- Загально доступно (Allocatable): CPU=5.85 cores, Пам'ять=13.64 GiB, Поди=87
+- Загальні Запити (Requests): CPU=3.37 cores (57.6%), Пам'ять=3.91 GiB (28.7%), Поди=24 (27.6%)
+- Загальні Ліміти (Limits):   CPU=0m (0.0%), Пам'ять=0 MiB (0.0%)
+
+Загальні Рекомендації та Спостереження по Кластеру:
+  - УВАГА (Поди з високими запитами >50.0%): Вузли: ip-100-100-31-113.eu-west-1.compute.internal, ip-100-100-41-106.eu-west-1.compute.internal. Перегляньте конфігурацію цих подів.
+  - УВАГА (Поди без запитів): Вузли: ip-100-100-31-113.eu-west-1.compute.internal, ip-100-100-41-106.eu-west-1.compute.internal. Встановіть запити для стабільності.
+  - УВАГА (Поди без лімітів): Вузли: ip-100-100-31-113.eu-west-1.compute.internal, ip-100-100-41-106.eu-west-1.compute.internal. Встановіть ліміти для запобігання неконтрольованому споживанню.
+  - Примітка: Оптимальне використання вузлів передбачає їх достатнє завантаження без надмірного overcommit'у ресурсів, особливо пам'яті.
+
+=== Обробка файлу: 04_describe_pod.txt ===
+
+--- Парсинг: kubectl describe pod ---
+Інформація про под: xenia-stg/xenia-stg-mongodb-2 (Статус: Running, Вузол: ip-100-100-17-161.eu-west-1.compute.internal, QoS: Burstable)
+  - Контейнер: 1-git-pull
+    - Запити (Requests): CPU=0m, Пам'ять=0 MiB
+    - Ліміти (Limits): CPU=0m, Пам'ять=0 MiB
+  - Контейнер: 2-merge-configs
+    - Запити (Requests): CPU=0m, Пам'ять=0 MiB
+    - Ліміти (Limits): CPU=0m, Пам'ять=0 MiB
+  - Контейнер: 3-git-push
+    - Запити (Requests): CPU=0m, Пам'ять=0 MiB
+    - Ліміти (Limits): CPU=0m, Пам'ять=0 MiB
+  - Контейнер: result
+    - Запити (Requests): CPU=0m, Пам'ять=0 MiB
+    - Ліміти (Limits): CPU=0m, Пам'ять=0 MiB
+  - Контейнер: mongo-backup
+    - Запити (Requests): CPU=0m, Пам'ять=0 MiB
+    - Ліміти (Limits): CPU=0m, Пам'ять=0 MiB
+  - Контейнер: istio-init
+    - Запити (Requests): CPU=10m, Пам'ять=128.00 MiB
+    - Ліміти (Limits): CPU=2.00 cores, Пам'ять=1.00 GiB
+  - Контейнер: istio-proxy
+    - Запити (Requests): CPU=10m, Пам'ять=128.00 MiB
+    - Ліміти (Limits): CPU=2.00 cores, Пам'ять=1.00 GiB
+  - Контейнер: xenia
+    - Запити (Requests): CPU=2.00 cores, Пам'ять=2.00 GiB
+    - Ліміти (Limits): CPU=2.00 cores, Пам'ять=2.00 GiB
+  - Контейнер: mongodb
+    - Запити (Requests): CPU=1.00 cores, Пам'ять=2.50 GiB
+    - Ліміти (Limits): CPU=2.00 cores, Пам'ять=6.00 GiB
+  - Контейнер: metrics
+    - Запити (Requests): CPU=0m, Пам'ять=0 MiB
+    - Ліміти (Limits): CPU=0m, Пам'ять=0 MiB
+  - Останні події:
+    Normal  Pulled     14m   kubelet            Container image "775103580568.dkr.ecr.eu-west-1.amazonaws.com/jenkins/git-sync:3.6.8" already present on machine
+    Normal  Created    14m   kubelet            Created container 2-merge-configs
+    Normal  Started    14m   kubelet            Started container 2-merge-configs
+    Normal  Pulled     14m   kubelet            Container image "775103580568.dkr.ecr.eu-west-1.amazonaws.com/jenkins/git-sync:3.6.8" already present on machine
+    Normal  Created    14m   kubelet            Created container 3-git-push
+
+--- Аналіз та Рекомендації (Після describe_pod (04_describe_pod.txt)) ---
+
+Аналіз по вузлах:
+
+- Вузол: ip-100-100-17-161.eu-west-1.compute.internal
+  ПОМИЛКА: Відсутні або нульові дані allocatable (CPU: 0m, Mem: 0 MiB, Pods: 0.0). Повний аналіз неможливий.
+
+- Вузол: ip-100-100-24-129.eu-west-1.compute.internal
+  ПОМИЛКА: Відсутні або нульові дані allocatable (CPU: 0m, Mem: 0 MiB, Pods: 0.0). Повний аналіз неможливий.
+
+- Вузол: ip-100-100-31-113.eu-west-1.compute.internal
+  INFO:
+    - Активні поди (12): calico-system/calico-node-brn8p (Running), calico-system/csi-node-driver-878fn (Running), falcon-system/falcon-sensor-k5xzq (Running), kube-system/aws-node-cj5dj (Running), kube-system/aws-node-termination-handler-g98fx (Running), kube-system/ebs-csi-node-hsd8l (Running), kube-system/kube-proxy-ftgcs (Running), logging/fluent-bit-kszcv (Running), monitoring/monitoring-prometheus-node-exporter-g9jch (Running), tigera-compliance/compliance-benchmarker-x8s8c (Running), tigera-fluentd/fluentd-node-jpch7 (Running), xenia-stg/xenia-56b6dcb558-6hdql (Running)
+    - Дані з 'describe node' (Allocated): ReqCPU=2.19 cores, LimCPU=0m, ReqMem=2.37 GiB, LimMem=0 MiB, Pods=0
+    - Доступно (Allocatable): CPU=3.92 cores, Пам'ять=6.68 GiB, Поди=58
+    - Поди з неймспейсу 'xenia-stg': xenia-56b6dcb558-6hdql (Running)
+    - Сумарні Запити АКТИВНИХ (Requests): CPU=2.19 cores (55.7%), Пам'ять=1.96 GiB (29.3%), Поди=12 (20.7%)
+    - Сумарні Ліміти АКТИВНИХ (Limits):   CPU=0m (0.0%), Пам'ять=0 MiB (0.0%)
+  WARNINGS:
+    - Поди БЕЗ ЗАПИТІВ (requests): calico-system/calico-node-brn8p, calico-system/csi-node-driver-878fn, falcon-system/falcon-sensor-k5xzq, kube-system/aws-node-termination-handler-g98fx, monitoring/monitoring-prometheus-node-exporter-g9jch, tigera-compliance/compliance-benchmarker-x8s8c, tigera-fluentd/fluentd-node-jpch7. Це негативно впливає на планування та стабільність.
+    - Поди БЕЗ ЛІМІТІВ (limits): calico-system/calico-node-brn8p, calico-system/csi-node-driver-878fn, falcon-system/falcon-sensor-k5xzq, kube-system/aws-node-cj5dj, kube-system/aws-node-termination-handler-g98fx, kube-system/ebs-csi-node-hsd8l, kube-system/kube-proxy-ftgcs, logging/fluent-bit-kszcv, monitoring/monitoring-prometheus-node-exporter-g9jch, tigera-compliance/compliance-benchmarker-x8s8c, tigera-fluentd/fluentd-node-jpch7, xenia-stg/xenia-56b6dcb558-6hdql. Це може призвести до неконтрольованого споживання ресурсів.
+    - Поди з високими запитами (> 50.0%): xenia-stg/xenia-56b6dcb558-6hdql (CPU: 2.01 cores - 51.3%). Перегляньте їх конфігурацію.
+
+- Вузол: ip-100-100-35-194.eu-west-1.compute.internal
+  ПОМИЛКА: Відсутні або нульові дані allocatable (CPU: 0m, Mem: 0 MiB, Pods: 0.0). Повний аналіз неможливий.
+
+- Вузол: ip-100-100-41-106.eu-west-1.compute.internal
+  INFO:
+    - Активні поди (12): calico-system/calico-node-prf59 (Running), calico-system/csi-node-driver-bnw7b (Running), falcon-system/falcon-sensor-qq8rj (Running), kube-system/aws-node-fv645 (Running), kube-system/aws-node-termination-handler-gr6wc (Running), kube-system/ebs-csi-node-lrnkk (Running), kube-system/kube-proxy-8zpf9 (Running), logging/fluent-bit-889fl (Running), monitoring/monitoring-prometheus-node-exporter-jpvm6 (Running), tigera-compliance/compliance-benchmarker-wn9pz (Running), tigera-fluentd/fluentd-node-xp94t (Running), xenia-stg/xenia-stg-mongodb-0 (Running)
+    - Дані з 'describe node' (Allocated): ReqCPU=1.19 cores, LimCPU=0m, ReqMem=2.87 GiB, LimMem=0 MiB, Pods=0
+    - Доступно (Allocatable): CPU=1.93 cores, Пам'ять=6.95 GiB, Поди=29
+    - Поди з неймспейсу 'xenia-stg': xenia-stg-mongodb-0 (Running)
+    - Потенційні БД: xenia-stg/xenia-stg-mongodb-0
+    - Сумарні Запити АКТИВНИХ (Requests): CPU=1.19 cores (61.4%), Пам'ять=1.96 GiB (28.1%), Поди=12 (41.4%)
+    - Сумарні Ліміти АКТИВНИХ (Limits):   CPU=0m (0.0%), Пам'ять=0 MiB (0.0%)
+  WARNINGS:
+    - Поди БЕЗ ЗАПИТІВ (requests): calico-system/calico-node-prf59, calico-system/csi-node-driver-bnw7b, falcon-system/falcon-sensor-qq8rj, kube-system/aws-node-termination-handler-gr6wc, monitoring/monitoring-prometheus-node-exporter-jpvm6, tigera-compliance/compliance-benchmarker-wn9pz, tigera-fluentd/fluentd-node-xp94t. Це негативно впливає на планування та стабільність.
+    - Поди БЕЗ ЛІМІТІВ (limits): calico-system/calico-node-prf59, calico-system/csi-node-driver-bnw7b, falcon-system/falcon-sensor-qq8rj, kube-system/aws-node-fv645, kube-system/aws-node-termination-handler-gr6wc, kube-system/ebs-csi-node-lrnkk, kube-system/kube-proxy-8zpf9, logging/fluent-bit-889fl, monitoring/monitoring-prometheus-node-exporter-jpvm6, tigera-compliance/compliance-benchmarker-wn9pz, tigera-fluentd/fluentd-node-xp94t, xenia-stg/xenia-stg-mongodb-0. Це може призвести до неконтрольованого споживання ресурсів.
+    - Поди з високими запитами (> 50.0%): xenia-stg/xenia-stg-mongodb-0 (CPU: 1.01 cores - 52.3%). Перегляньте їх конфігурацію.
+
+- Вузол: ip-100-100-46-4.eu-west-1.compute.internal
+  ПОМИЛКА: Відсутні або нульові дані allocatable (CPU: 0m, Mem: 0 MiB, Pods: 0.0). Повний аналіз неможливий.
+
+- Вузол: ip-100-100-58-211.eu-west-1.compute.internal
+  ПОМИЛКА: Відсутні або нульові дані allocatable (CPU: 0m, Mem: 0 MiB, Pods: 0.0). Повний аналіз неможливий.
+
+Загальний аналіз кластера:
+- Загально доступно (Allocatable): CPU=5.85 cores, Пам'ять=13.64 GiB, Поди=87
+- Загальні Запити (Requests): CPU=3.37 cores (57.6%), Пам'ять=3.91 GiB (28.7%), Поди=24 (27.6%)
+- Загальні Ліміти (Limits):   CPU=0m (0.0%), Пам'ять=0 MiB (0.0%)
+
+Загальні Рекомендації та Спостереження по Кластеру:
+  - УВАГА (Поди з високими запитами >50.0%): Вузли: ip-100-100-31-113.eu-west-1.compute.internal, ip-100-100-41-106.eu-west-1.compute.internal. Перегляньте конфігурацію цих подів.
+  - УВАГА (Поди без запитів): Вузли: ip-100-100-31-113.eu-west-1.compute.internal, ip-100-100-41-106.eu-west-1.compute.internal. Встановіть запити для стабільності.
+  - УВАГА (Поди без лімітів): Вузли: ip-100-100-31-113.eu-west-1.compute.internal, ip-100-100-41-106.eu-west-1.compute.internal. Встановіть ліміти для запобігання неконтрольованому споживанню.
+  - Примітка: Оптимальне використання вузлів передбачає їх достатнє завантаження без надмірного overcommit'у ресурсів, особливо пам'яті.
+
+=== Обробка файлу: 05_describe_pod_another.txt ===
+
+--- Парсинг: kubectl describe pod ---
+Інформація про под: xenia-stg/xenia-56b6dcb558-6hdql (Статус: Running, Вузол: ip-100-100-31-113.eu-west-1.compute.internal, QoS: Burstable)
+  - Контейнер: istio-init
+    - Запити (Requests): CPU=10m, Пам'ять=128.00 MiB
+    - Ліміти (Limits): CPU=2.00 cores, Пам'ять=1.00 GiB
+  - Контейнер: istio-proxy
+    - Запити (Requests): CPU=10m, Пам'ять=128.00 MiB
+    - Ліміти (Limits): CPU=2.00 cores, Пам'ять=1.00 GiB
+  - Контейнер: xenia
+    - Запити (Requests): CPU=2.00 cores, Пам'ять=2.00 GiB
+    - Ліміти (Limits): CPU=2.00 cores, Пам'ять=2.00 GiB
+
+--- Аналіз та Рекомендації (Після describe_pod (05_describe_pod_another.txt)) ---
+
+Аналіз по вузлах:
+
+- Вузол: ip-100-100-17-161.eu-west-1.compute.internal
+  ПОМИЛКА: Відсутні або нульові дані allocatable (CPU: 0m, Mem: 0 MiB, Pods: 0.0). Повний аналіз неможливий.
+
+- Вузол: ip-100-100-24-129.eu-west-1.compute.internal
+  ПОМИЛКА: Відсутні або нульові дані allocatable (CPU: 0m, Mem: 0 MiB, Pods: 0.0). Повний аналіз неможливий.
+
+- Вузол: ip-100-100-31-113.eu-west-1.compute.internal
+  INFO:
+    - Активні поди (12): calico-system/calico-node-brn8p (Running), calico-system/csi-node-driver-878fn (Running), falcon-system/falcon-sensor-k5xzq (Running), kube-system/aws-node-cj5dj (Running), kube-system/aws-node-termination-handler-g98fx (Running), kube-system/ebs-csi-node-hsd8l (Running), kube-system/kube-proxy-ftgcs (Running), logging/fluent-bit-kszcv (Running), monitoring/monitoring-prometheus-node-exporter-g9jch (Running), tigera-compliance/compliance-benchmarker-x8s8c (Running), tigera-fluentd/fluentd-node-jpch7 (Running), xenia-stg/xenia-56b6dcb558-6hdql (Running)
+    - Дані з 'describe node' (Allocated): ReqCPU=2.19 cores, LimCPU=0m, ReqMem=2.37 GiB, LimMem=0 MiB, Pods=0
+    - Доступно (Allocatable): CPU=3.92 cores, Пам'ять=6.68 GiB, Поди=58
+    - Поди з неймспейсу 'xenia-stg': xenia-56b6dcb558-6hdql (Running)
+    - Сумарні Запити АКТИВНИХ (Requests): CPU=2.19 cores (56.0%), Пам'ять=4.21 GiB (63.0%), Поди=12 (20.7%)
+    - Сумарні Ліміти АКТИВНИХ (Limits):   CPU=6.00 cores (153.1%), Пам'ять=4.00 GiB (59.9%)
+  WARNINGS:
+    - CPU Limits Overcommit (153.1%). Можливий CPU throttling.
+    - Поди БЕЗ ЗАПИТІВ (requests): calico-system/calico-node-brn8p, calico-system/csi-node-driver-878fn, falcon-system/falcon-sensor-k5xzq, kube-system/aws-node-termination-handler-g98fx, monitoring/monitoring-prometheus-node-exporter-g9jch, tigera-compliance/compliance-benchmarker-x8s8c, tigera-fluentd/fluentd-node-jpch7. Це негативно впливає на планування та стабільність.
+    - Поди БЕЗ ЛІМІТІВ (limits): calico-system/calico-node-brn8p, calico-system/csi-node-driver-878fn, falcon-system/falcon-sensor-k5xzq, kube-system/aws-node-cj5dj, kube-system/aws-node-termination-handler-g98fx, kube-system/ebs-csi-node-hsd8l, kube-system/kube-proxy-ftgcs, logging/fluent-bit-kszcv, monitoring/monitoring-prometheus-node-exporter-g9jch, tigera-compliance/compliance-benchmarker-x8s8c, tigera-fluentd/fluentd-node-jpch7. Це може призвести до неконтрольованого споживання ресурсів.
+    - Поди з високими запитами (> 50.0%): xenia-stg/xenia-56b6dcb558-6hdql (CPU: 2.02 cores - 51.5%). Перегляньте їх конфігурацію.
+
+- Вузол: ip-100-100-35-194.eu-west-1.compute.internal
+  ПОМИЛКА: Відсутні або нульові дані allocatable (CPU: 0m, Mem: 0 MiB, Pods: 0.0). Повний аналіз неможливий.
+
+- Вузол: ip-100-100-41-106.eu-west-1.compute.internal
+  INFO:
+    - Активні поди (12): calico-system/calico-node-prf59 (Running), calico-system/csi-node-driver-bnw7b (Running), falcon-system/falcon-sensor-qq8rj (Running), kube-system/aws-node-fv645 (Running), kube-system/aws-node-termination-handler-gr6wc (Running), kube-system/ebs-csi-node-lrnkk (Running), kube-system/kube-proxy-8zpf9 (Running), logging/fluent-bit-889fl (Running), monitoring/monitoring-prometheus-node-exporter-jpvm6 (Running), tigera-compliance/compliance-benchmarker-wn9pz (Running), tigera-fluentd/fluentd-node-xp94t (Running), xenia-stg/xenia-stg-mongodb-0 (Running)
+    - Дані з 'describe node' (Allocated): ReqCPU=1.19 cores, LimCPU=0m, ReqMem=2.87 GiB, LimMem=0 MiB, Pods=0
+    - Доступно (Allocatable): CPU=1.93 cores, Пам'ять=6.95 GiB, Поди=29
+    - Поди з неймспейсу 'xenia-stg': xenia-stg-mongodb-0 (Running)
+    - Потенційні БД: xenia-stg/xenia-stg-mongodb-0
+    - Сумарні Запити АКТИВНИХ (Requests): CPU=1.19 cores (61.4%), Пам'ять=1.96 GiB (28.1%), Поди=12 (41.4%)
+    - Сумарні Ліміти АКТИВНИХ (Limits):   CPU=0m (0.0%), Пам'ять=0 MiB (0.0%)
+  WARNINGS:
+    - Поди БЕЗ ЗАПИТІВ (requests): calico-system/calico-node-prf59, calico-system/csi-node-driver-bnw7b, falcon-system/falcon-sensor-qq8rj, kube-system/aws-node-termination-handler-gr6wc, monitoring/monitoring-prometheus-node-exporter-jpvm6, tigera-compliance/compliance-benchmarker-wn9pz, tigera-fluentd/fluentd-node-xp94t. Це негативно впливає на планування та стабільність.
+    - Поди БЕЗ ЛІМІТІВ (limits): calico-system/calico-node-prf59, calico-system/csi-node-driver-bnw7b, falcon-system/falcon-sensor-qq8rj, kube-system/aws-node-fv645, kube-system/aws-node-termination-handler-gr6wc, kube-system/ebs-csi-node-lrnkk, kube-system/kube-proxy-8zpf9, logging/fluent-bit-889fl, monitoring/monitoring-prometheus-node-exporter-jpvm6, tigera-compliance/compliance-benchmarker-wn9pz, tigera-fluentd/fluentd-node-xp94t, xenia-stg/xenia-stg-mongodb-0. Це може призвести до неконтрольованого споживання ресурсів.
+    - Поди з високими запитами (> 50.0%): xenia-stg/xenia-stg-mongodb-0 (CPU: 1.01 cores - 52.3%). Перегляньте їх конфігурацію.
+
+- Вузол: ip-100-100-46-4.eu-west-1.compute.internal
+  ПОМИЛКА: Відсутні або нульові дані allocatable (CPU: 0m, Mem: 0 MiB, Pods: 0.0). Повний аналіз неможливий.
+
+- Вузол: ip-100-100-58-211.eu-west-1.compute.internal
+  ПОМИЛКА: Відсутні або нульові дані allocatable (CPU: 0m, Mem: 0 MiB, Pods: 0.0). Повний аналіз неможливий.
+
+Загальний аналіз кластера:
+- Загально доступно (Allocatable): CPU=5.85 cores, Пам'ять=13.64 GiB, Поди=87
+- Загальні Запити (Requests): CPU=3.38 cores (57.8%), Пам'ять=6.16 GiB (45.2%), Поди=24 (27.6%)
+- Загальні Ліміти (Limits):   CPU=6.00 cores (102.6%), Пам'ять=4.00 GiB (29.3%)
+
+Загальні Рекомендації та Спостереження по Кластеру:
+  - УВАГА (Поди з високими запитами >50.0%): Вузли: ip-100-100-31-113.eu-west-1.compute.internal, ip-100-100-41-106.eu-west-1.compute.internal. Перегляньте конфігурацію цих подів.
+  - УВАГА (Поди без запитів): Вузли: ip-100-100-31-113.eu-west-1.compute.internal, ip-100-100-41-106.eu-west-1.compute.internal. Встановіть запити для стабільності.
+  - УВАГА (Поди без лімітів): Вузли: ip-100-100-31-113.eu-west-1.compute.internal, ip-100-100-41-106.eu-west-1.compute.internal. Встановіть ліміти для запобігання неконтрольованому споживанню.
+  - Примітка: Оптимальне використання вузлів передбачає їх достатнє завантаження без надмірного overcommit'у ресурсів, особливо пам'яті.
+
+=== Завершення аналізу всіх файлів ===
+
+--- Аналіз та Рекомендації (Фінальний звіт) ---
+
+Аналіз по вузлах:
+
+- Вузол: ip-100-100-17-161.eu-west-1.compute.internal
+  ПОМИЛКА: Відсутні або нульові дані allocatable (CPU: 0m, Mem: 0 MiB, Pods: 0.0). Повний аналіз неможливий.
+
+- Вузол: ip-100-100-24-129.eu-west-1.compute.internal
+  ПОМИЛКА: Відсутні або нульові дані allocatable (CPU: 0m, Mem: 0 MiB, Pods: 0.0). Повний аналіз неможливий.
+
+- Вузол: ip-100-100-31-113.eu-west-1.compute.internal
+  INFO:
+    - Активні поди (12): calico-system/calico-node-brn8p (Running), calico-system/csi-node-driver-878fn (Running), falcon-system/falcon-sensor-k5xzq (Running), kube-system/aws-node-cj5dj (Running), kube-system/aws-node-termination-handler-g98fx (Running), kube-system/ebs-csi-node-hsd8l (Running), kube-system/kube-proxy-ftgcs (Running), logging/fluent-bit-kszcv (Running), monitoring/monitoring-prometheus-node-exporter-g9jch (Running), tigera-compliance/compliance-benchmarker-x8s8c (Running), tigera-fluentd/fluentd-node-jpch7 (Running), xenia-stg/xenia-56b6dcb558-6hdql (Running)
+    - Дані з 'describe node' (Allocated): ReqCPU=2.19 cores, LimCPU=0m, ReqMem=2.37 GiB, LimMem=0 MiB, Pods=0
+    - Доступно (Allocatable): CPU=3.92 cores, Пам'ять=6.68 GiB, Поди=58
+    - Поди з неймспейсу 'xenia-stg': xenia-56b6dcb558-6hdql (Running)
+    - Сумарні Запити АКТИВНИХ (Requests): CPU=2.19 cores (56.0%), Пам'ять=4.21 GiB (63.0%), Поди=12 (20.7%)
+    - Сумарні Ліміти АКТИВНИХ (Limits):   CPU=6.00 cores (153.1%), Пам'ять=4.00 GiB (59.9%)
+  WARNINGS:
+    - CPU Limits Overcommit (153.1%). Можливий CPU throttling.
+    - Поди БЕЗ ЗАПИТІВ (requests): calico-system/calico-node-brn8p, calico-system/csi-node-driver-878fn, falcon-system/falcon-sensor-k5xzq, kube-system/aws-node-termination-handler-g98fx, monitoring/monitoring-prometheus-node-exporter-g9jch, tigera-compliance/compliance-benchmarker-x8s8c, tigera-fluentd/fluentd-node-jpch7. Це негативно впливає на планування та стабільність.
+    - Поди БЕЗ ЛІМІТІВ (limits): calico-system/calico-node-brn8p, calico-system/csi-node-driver-878fn, falcon-system/falcon-sensor-k5xzq, kube-system/aws-node-cj5dj, kube-system/aws-node-termination-handler-g98fx, kube-system/ebs-csi-node-hsd8l, kube-system/kube-proxy-ftgcs, logging/fluent-bit-kszcv, monitoring/monitoring-prometheus-node-exporter-g9jch, tigera-compliance/compliance-benchmarker-x8s8c, tigera-fluentd/fluentd-node-jpch7. Це може призвести до неконтрольованого споживання ресурсів.
+    - Поди з високими запитами (> 50.0%): xenia-stg/xenia-56b6dcb558-6hdql (CPU: 2.02 cores - 51.5%). Перегляньте їх конфігурацію.
+
+- Вузол: ip-100-100-35-194.eu-west-1.compute.internal
+  ПОМИЛКА: Відсутні або нульові дані allocatable (CPU: 0m, Mem: 0 MiB, Pods: 0.0). Повний аналіз неможливий.
+
+- Вузол: ip-100-100-41-106.eu-west-1.compute.internal
+  INFO:
+    - Активні поди (12): calico-system/calico-node-prf59 (Running), calico-system/csi-node-driver-bnw7b (Running), falcon-system/falcon-sensor-qq8rj (Running), kube-system/aws-node-fv645 (Running), kube-system/aws-node-termination-handler-gr6wc (Running), kube-system/ebs-csi-node-lrnkk (Running), kube-system/kube-proxy-8zpf9 (Running), logging/fluent-bit-889fl (Running), monitoring/monitoring-prometheus-node-exporter-jpvm6 (Running), tigera-compliance/compliance-benchmarker-wn9pz (Running), tigera-fluentd/fluentd-node-xp94t (Running), xenia-stg/xenia-stg-mongodb-0 (Running)
+    - Дані з 'describe node' (Allocated): ReqCPU=1.19 cores, LimCPU=0m, ReqMem=2.87 GiB, LimMem=0 MiB, Pods=0
+    - Доступно (Allocatable): CPU=1.93 cores, Пам'ять=6.95 GiB, Поди=29
+    - Поди з неймспейсу 'xenia-stg': xenia-stg-mongodb-0 (Running)
+    - Потенційні БД: xenia-stg/xenia-stg-mongodb-0
+    - Сумарні Запити АКТИВНИХ (Requests): CPU=1.19 cores (61.4%), Пам'ять=1.96 GiB (28.1%), Поди=12 (41.4%)
+    - Сумарні Ліміти АКТИВНИХ (Limits):   CPU=0m (0.0%), Пам'ять=0 MiB (0.0%)
+  WARNINGS:
+    - Поди БЕЗ ЗАПИТІВ (requests): calico-system/calico-node-prf59, calico-system/csi-node-driver-bnw7b, falcon-system/falcon-sensor-qq8rj, kube-system/aws-node-termination-handler-gr6wc, monitoring/monitoring-prometheus-node-exporter-jpvm6, tigera-compliance/compliance-benchmarker-wn9pz, tigera-fluentd/fluentd-node-xp94t. Це негативно впливає на планування та стабільність.
+    - Поди БЕЗ ЛІМІТІВ (limits): calico-system/calico-node-prf59, calico-system/csi-node-driver-bnw7b, falcon-system/falcon-sensor-qq8rj, kube-system/aws-node-fv645, kube-system/aws-node-termination-handler-gr6wc, kube-system/ebs-csi-node-lrnkk, kube-system/kube-proxy-8zpf9, logging/fluent-bit-889fl, monitoring/monitoring-prometheus-node-exporter-jpvm6, tigera-compliance/compliance-benchmarker-wn9pz, tigera-fluentd/fluentd-node-xp94t, xenia-stg/xenia-stg-mongodb-0. Це може призвести до неконтрольованого споживання ресурсів.
+    - Поди з високими запитами (> 50.0%): xenia-stg/xenia-stg-mongodb-0 (CPU: 1.01 cores - 52.3%). Перегляньте їх конфігурацію.
+
+- Вузол: ip-100-100-46-4.eu-west-1.compute.internal
+  ПОМИЛКА: Відсутні або нульові дані allocatable (CPU: 0m, Mem: 0 MiB, Pods: 0.0). Повний аналіз неможливий.
+
+- Вузол: ip-100-100-58-211.eu-west-1.compute.internal
+  ПОМИЛКА: Відсутні або нульові дані allocatable (CPU: 0m, Mem: 0 MiB, Pods: 0.0). Повний аналіз неможливий.
+
+Загальний аналіз кластера:
+- Загально доступно (Allocatable): CPU=5.85 cores, Пам'ять=13.64 GiB, Поди=87
+- Загальні Запити (Requests): CPU=3.38 cores (57.8%), Пам'ять=6.16 GiB (45.2%), Поди=24 (27.6%)
+- Загальні Ліміти (Limits):   CPU=6.00 cores (102.6%), Пам'ять=4.00 GiB (29.3%)
+
+Загальні Рекомендації та Спостереження по Кластеру:
+  - УВАГА (Поди з високими запитами >50.0%): Вузли: ip-100-100-31-113.eu-west-1.compute.internal, ip-100-100-41-106.eu-west-1.compute.internal. Перегляньте конфігурацію цих подів.
+  - УВАГА (Поди без запитів): Вузли: ip-100-100-31-113.eu-west-1.compute.internal, ip-100-100-41-106.eu-west-1.compute.internal. Встановіть запити для стабільності.
+  - УВАГА (Поди без лімітів): Вузли: ip-100-100-31-113.eu-west-1.compute.internal, ip-100-100-41-106.eu-west-1.compute.internal. Встановіть ліміти для запобігання неконтрольованому споживанню.
+  - Примітка: Оптимальне використання вузлів передбачає їх достатнє завантаження без надмірного overcommit'у ресурсів, особливо пам'яті.
