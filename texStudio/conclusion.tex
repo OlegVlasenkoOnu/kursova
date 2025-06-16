@@ -1,0 +1,142 @@
+\chapter*{Висновки}
+\addcontentsline{toc}{chapter}{Висновки}
+
+Дослідження підтвердило актуальність оптимізації ресурсів у Kubernetes.  Оптимізація критична для запобігання фінансовим втратам та підвищення стабільності.  Існує багато інструментів, і розробка власних, як у цій роботі, заповнює нішу швидкого аудиту.  Математичний апарат, що включає теорію оптимізації та статистику, є основою для вирішення цих завдань.  Розроблений комплекс корисний для первинного аудиту, але статичний аналіз має обмеження, оскільки не враховує реальне споживання.  Існують значні можливості для розвитку через інтеграцію з системами моніторингу та застосування методів машинного навчання. 
+
+\textbf{Практичні рекомендації:}
+\begin{itemize}
+	\item Регулярно проводити аудит конфігурацій. 
+	\item Встановлювати запити/ліміти на основі реального споживання. 
+	\item Використовувати Prometheus/Grafana для моніторингу. 
+	\item Розглядати VPA для автоматизації налаштувань. 
+	\item При виборі інфраструктури враховувати специфіку навантажень. 
+	\item Для складних сценаріїв застосовувати просунуті методи (МН, математична оптимізація). 
+\end{itemize}
+
+\appendix
+\chapter{Приклад виводу роботи програмного комплексу (Log2\_1.txt)}
+\begingroup
+\small
+\begin{verbatim}
+	=== Завершення аналізу всіх файлів === 
+	--- Аналіз та Рекомендації (Фінальний звіт) --- 
+	Аналіз по вузлах: 
+	Вузол: ip-100-100-31-113.eu-west-1.compute.internal 
+	INFO: Активні поди (1): xenia-stg/xenia-56b6dcb558-6hdql (Running) 
+	Доступно (Allocatable): CPU=3.92 cores, Пам'ять=6.68 GiB, Поди=58 
+	Невикористані ресурси (Allocatable - Requested): CPU=1.90 cores, Пам'ять=4.43 GiB 
+	Сумарні Запити АКТИВНИХ (Requests): CPU=2.02 cores (51.5%), Пам'ять=2.25 GiB (33.7%) 
+	Сумарні Ліміти АКТИВНИХ (Limits): CPU=6.00 cores (153.1%), Пам'ять=4.00 GiB (59.9%) 
+	WARNINGS: 
+	CPU Limits Overcommit (153.1%). Можливий CPU throttling. 
+	Поди з високими запитами (> 50.0%): xenia-stg/xenia-56b6dcb558-6hdql (CPU: 2.02 cores - 51.5%).
+	
+	Вузол: ip-100-100-41-106.eu-west-1.compute.internal 
+	INFO: Активні поди (1): xenia-stg/xenia-stg-mongodb-0 (Running) 
+	Доступно (Allocatable): CPU=1.93 cores, Пам'ять=6.95 GiB, Поди=29 
+	Невикористані ресурси (Allocatable - Requested): CPU=920m, Пам'ять=6.95 GiB 
+	Сумарні Запити АКТИВНИХ (Requests): CPU=1.01 cores (52.3%), Пам'ять=0.00 MiB (0.0%)
+	Сумарні Ліміти АКТИВНИХ (Limits): CPU=0m (0.0%), Пам'ять=0 MiB (0.0%) 
+	WARNINGS: 
+	Поди БЕЗ ЛІМІТІВ (limits): xenia-stg/xenia-stg-mongodb-0. 
+	Поди з високими запитами (> 50.0%): xenia-stg/xenia-stg-mongodb-0 (CPU: 1.01 cores - 52.3%).
+	
+	Загальний аналіз кластера: 
+	Загально доступно (Allocatable): CPU=5.85 cores, Пам'ять=13.64 GiB 
+	Загальні Запити (Requests): CPU=3.03 cores (51.8%), Пам'ять=2.25 GiB (16.5%) 
+	Загальні Ліміти (Limits): CPU=6.00 cores (102.6%), Пам'ять=4.00 GiB (29.3%)
+	
+	--- Рекомендації щодо вибору ОДИНОЧНОГО типу EC2 інстансу --- 
+	Загальні запити кластера (з буфером 15%): CPU=3.48 cores, Пам'ять=2.59 GiB 
+	Найбільш економічно вигідний ОДИНИЧНИЙ інстанс:
+	- Тип інстансу: a1.xlarge 
+	- CPU інстансу: 4.00 cores 
+	- Пам'ять інстансу: 8.00 GiB 
+	- Орієнтовна вартість: $0.1020 / год
+\end{verbatim}
+\endgroup
+
+\chapter{Приклад YAML-конфігурації (після оптимізації)}
+\begin{verbatim}
+	apiVersion: apps/v1
+	kind: StatefulSet
+	metadata:
+	name: xenia-stg-mongodb
+	namespace: xenia-stg
+	spec:
+	serviceName: "xenia-stg-mongodb"
+	replicas: 1
+	selector:
+	matchLabels:
+	app: mongodb
+	role: database
+	environment: xenia-stg
+	template:
+	metadata:
+	labels:
+	app: mongodb
+	role: database
+	environment: xenia-stg
+	spec:
+	terminationGracePeriodSeconds: 10
+	containers:
+	- name: mongo
+	image: mongo:4.4.6 # Завжди вказуйте версію
+	ports:
+	- containerPort: 27017
+	name: mongo
+	resources:
+	requests:
+	cpu: "500m"
+	memory: "1Gi"
+	limits:
+	cpu: "1"
+	memory: "2Gi"
+	volumeMounts:
+	- name: mongo-persistent-storage
+	mountPath: /data/db
+	volumeClaimTemplates:
+	- metadata:
+	name: mongo-persistent-storage
+	spec:
+	accessModes: ["ReadWriteOnce"]
+	storageClassName: "gp2"
+	resources:
+	requests:
+	storage: 10Gi
+\end{verbatim}
+
+\chapter{Глосарій англійських термінів}
+\begin{description}
+	\item[Affinity/Anti-affinity (Спорідненість/Антиспорідненість):]  Правила в Kubernetes, що впливають на розміщення подів на вузлах. 
+	\item[API (Application Programming Interface):] Набір визначень та протоколів для взаємодії програм. 
+	\item[Bin packing ("Упаковка в контейнери"):] Задача оптимального розміщення подів на вузлах. 
+	\item[CA (Cluster Autoscaler):] Компонент Kubernetes, що автоматично змінює кількість вузлів. 
+	\item[CPU (Central Processing Unit):] Центральний процесор; в Kubernetes вимірюється в ядрах (cores). 
+	\item[Deployment (Розгортання):] Об'єкт Kubernetes, що декларативно описує бажаний стан подів. 
+	\item[EC2 (Elastic Compute Cloud):] Сервіс Amazon Web Services (AWS), що надає віртуальні сервери. 
+	\item[FinOps (Financial Operations):] Практика управління хмарними витратами. 
+	\item[Grafana:] Платформа для візуалізації даних та моніторингу. 
+	\item[HPA (Horizontal Pod Autoscaler):] Компонент Kubernetes, що автоматично масштабує кількість реплік поду. 
+	\item[Instance (Інстанс):] Екземпляр віртуального сервера в хмарному середовищі. 
+	\item[Kubernetes (K8s):] Відкрита платформа для автоматизації управління контейнеризованими додатками. 
+	\item[kubectl:] Інструмент командного рядка для взаємодії з кластерами Kubernetes. 
+	\item[Limits (Ліміти):] Максимально дозволена кількість ресурсів, яку може споживати контейнер. 
+	\item[ML (Machine Learning):] Галузь штучного інтелекту, що дозволяє системам навчатися на даних. 
+	\item[Node (Вузол):] Фізична або віртуальна машина в кластері Kubernetes. 
+	\item[OOMKilled (Out of Memory Killed):] Примусове завершення процесу через нестачу пам'яті. 
+	\item[Orchestration (Оркестрація):] Автоматизоване управління складними комп'ютерними системами. 
+	\item[Overprovisioning:] Виділення більшої кількості ресурсів, ніж необхідно. 
+	\item[Pod (Под):] Найменша одиниця розгортання в Kubernetes. 
+	\item[Prometheus:] Система моніторингу та алертингу. 
+	\item[QoS (Quality of Service):] Механізм Kubernetes для класифікації подів за пріоритетом. 
+	\item[Requests (Запити):] Гарантована кількість ресурсів, яку Kubernetes резервує для контейнера. 
+	\item[Right-sizing:] Процес налаштування запитів та лімітів відповідно до реальних потреб. 
+	\item[Scalability (Масштабованість):] Здатність системи справлятися зі зростаючим навантаженням. 
+	\item[Scheduler (Планувальник):] Компонент Kubernetes, який призначає поди на вузли. 
+	\item[StatefulSet:] Об'єкт Kubernetes для управління додатками зі станом. 
+	\item[Throttling ("Тротлінг"):] Штучне обмеження продуктивності. 
+	\item[Underprovisioning:] Виділення меншої кількості ресурсів, ніж необхідно. 
+	\item[VPA (Vertical Pod Autoscaler):] Компонент Kubernetes, що автоматично налаштовує запити та ліміти. 
+	\item[YAML:] Людиночитний формат серіалізації даних, що використовується для конфігурацій. 
+\end{description}
